@@ -1,6 +1,6 @@
 {
   "name": "@codexsun/blogs-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "type": "module",
   "exports": {
@@ -13,7 +13,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --ext .ts,.tsx"
   },
-  "peerDependencies": {"@cxapp/ui": ">=1.0.0"},
+  "peerDependencies": {
+    "@cxapp/ui": ">=1.0.0"
+  },
   "dependencies": {
     "@tanstack/react-query": "^5.100.10",
     "lucide-react": "^1.22.0",

@@ -1,6 +1,6 @@
 {
   "name": "@codexsun/blogs-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "type": "module",
   "exports": {
@@ -11,7 +11,9 @@
     "typecheck": "npm run build -w @cxapp/framework && tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --ext .ts"
   },
-  "peerDependencies": {"@cxapp/framework": ">=1.0.0"},
+  "peerDependencies": {
+    "@cxapp/framework": ">=1.0.0"
+  },
   "dependencies": {
     "fastify": "^5.2.1",
     "kysely": "^0.29.0",

@@ -2,9 +2,9 @@
 
 ## Version State
 
-Current version: 1.0.0
+Current version: 1.0.1
 
-Release tag: v-1.0.0
+Release tag: v-1.0.1
 
 ### [v 1.0.0] 2026-08-20 - Central Blog package
 
@@ -19,3 +19,12 @@ Release tag: v-1.0.0
 
 - Blog database migrations and repeatable seeds remain owned by the Blog API package.
 - No host application may write Blog tables directly.
+
+## v-1.0.1
+
+### [v 1.0.1] 2026-08-20 - Release update
+
+#### App Codebase Changes
+
+- Updated all Blog packages to 1.0.1.
+

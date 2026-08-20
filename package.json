@@ -9,6 +9,18 @@
     "./web": "./src/web/src/index.ts",
     "./contracts": "./src/contracts/src/index.ts"
   },
-  "workspaces": ["src/api", "src/web", "src/contracts"],
-  "scripts": {"build": "npm run build -ws --if-present", "typecheck": "npm run typecheck -ws --if-present", "check:versions": "node tools/check-versions.mjs"}
+  "workspaces": [
+    "src/api",
+    "src/web",
+    "src/contracts"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run build -ws --if-present",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "check:versions": "node tools/check-versions.mjs",
+    "version:bump": "node tools/version-bump.mjs",
+    "github:now": "node tools/github-now.mjs",
+    "git:release": "node tools/git-release.mjs",
+    "clean": "node tools/clean.mjs"
+  }
 }

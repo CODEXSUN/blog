@@ -8,5 +8,7 @@ const run = (args, quiet = false) => {
 };
 if (run(["status", "--porcelain"], true)) throw new Error("Release requires a clean worktree.");
 const version = JSON.parse(readFileSync(resolve(import.meta.dirname, "../package.json"), "utf8")).version; const tag = `v-${version}`;
+const changelog = readFileSync(resolve(import.meta.dirname, "../assist/documentation/CHANGELOG.md"), "utf8");
+if (!changelog.includes(`Release tag: ${tag}`)) throw new Error(`Changelog release tag must be ${tag}.`);
 if (run(["tag", "--list", tag], true)) throw new Error(`${tag} already exists.`);
 run(["tag", "-a", tag, "-m", `Release ${tag}`]); run(["push", "origin", "main"]); run(["push", "origin", tag]); console.log(`Released ${tag}.`);

@@ -1,0 +1,21 @@
+{
+  "name": "@codexsun/blogs-api",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "npm run build -w @cxapp/framework && tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@cxapp/framework": "^1.0.0",
+    "fastify": "^5.2.1",
+    "kysely": "^0.29.0",
+    "mysql2": "^3.22.3",
+    "zod": "^4.4.3"
+  }
+}

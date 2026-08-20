@@ -1,0 +1,8 @@
+{
+  "name": "@codexsun/blog",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "workspaces": ["apps/blogs/api", "apps/blogs/web", "packages/contracts"],
+  "scripts": {"build": "npm run build -ws --if-present", "typecheck": "npm run typecheck -ws --if-present", "check:versions": "node tools/check-versions.mjs"}
+}

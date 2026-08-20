@@ -13,8 +13,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --ext .ts,.tsx"
   },
+  "peerDependencies": {"@cxapp/ui": ">=1.0.0"},
   "dependencies": {
-    "@cxapp/ui": "^1.0.0",
     "@tanstack/react-query": "^5.100.10",
     "lucide-react": "^1.22.0",
     "react": "^19.0.0",

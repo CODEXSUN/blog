@@ -11,8 +11,8 @@
     "typecheck": "npm run build -w @cxapp/framework && tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --ext .ts"
   },
+  "peerDependencies": {"@cxapp/framework": ">=1.0.0"},
   "dependencies": {
-    "@cxapp/framework": "^1.0.0",
     "fastify": "^5.2.1",
     "kysely": "^0.29.0",
     "mysql2": "^3.22.3",

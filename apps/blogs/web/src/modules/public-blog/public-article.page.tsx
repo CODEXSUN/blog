@@ -270,8 +270,8 @@ function initials(value: string) {
     .toUpperCase();
 }
 function visitorKey() {
-  const key = localStorage.getItem("cxshop.blog.visitor") ?? crypto.randomUUID();
-  localStorage.setItem("cxshop.blog.visitor", key);
+  const key = localStorage.getItem("codexsun.blog.visitor") ?? crypto.randomUUID();
+  localStorage.setItem("codexsun.blog.visitor", key);
   return key;
 }
 function renderMarkdown(source: string) {

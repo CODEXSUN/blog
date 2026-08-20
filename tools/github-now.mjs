@@ -21,9 +21,6 @@ const ask = (question, fallback = "") => new Promise((done) => {
 const yes = (value) => ["y", "yes"].includes(value.trim().toLowerCase());
 const packagePath = resolve(root, "package.json");
 const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
-const changelog = readFileSync(resolve(root, "assist/documentation/CHANGELOG.md"), "utf8");
-const releaseCount = [...changelog.matchAll(/^## v-\d+\.\d+\.\d+$/gmu)].length;
-const nextReleaseNumber = releaseCount + 1;
 const status = runGit(["status", "--porcelain"], true);
 const files = status ? status.split("\n").filter(Boolean) : [];
 console.log(`\n  Changelog version: ${packageJson.version}`);
@@ -38,7 +35,7 @@ if (yes(bump)) {
   runGit(["commit", "-m", `chore: prepare ${title}`]);
 }
 const latest = JSON.parse(readFileSync(packagePath, "utf8")).version;
-const message = await ask("  Commit message", `#${nextReleaseNumber} - ${title}`);
+const message = await ask("  Commit message", `[v ${latest}] ${title}`);
 const confirmation = await ask("  Continue with pull, commit, and push? [y/N]", "n");
 if (!yes(confirmation)) throw new Error("Cancelled.");
 runGit(["fetch", "origin", "--prune"]);

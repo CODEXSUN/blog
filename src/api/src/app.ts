@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { requireApplicationAccess } from "@cxapp/framework/api";
+import { requirePlatformAccess } from "@cxapp/framework/api";
 import { bootstrapBlogsDatabase } from "./database/blogs-database.js";
 import { blogsEnv } from "./env.js";
 import { articleModule } from "./modules/article/index.js";
@@ -18,8 +18,8 @@ export async function registerBlogsApi(app: FastifyInstance) {
   await app.register(async (blogsApp) => {
     blogsApp.addHook("preHandler", async (request) => {
       if (request.url.startsWith("/public/blog") || request.url.startsWith("/sitemap.xml")) return;
-      requireApplicationAccess({
-        applicationDatabase: blogsEnv.DB_MASTER_NAME,
+      requirePlatformAccess({
+        allowedUserTypes: ["tenant", "staff", "super_admin"],
         authorization: request.headers.authorization,
         secret: blogsEnv.JWT_SECRET
       });

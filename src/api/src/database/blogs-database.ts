@@ -30,7 +30,7 @@ export const blogsMigrationBatch: MigrationBatch<BlogsDatabase> = {
   batch: 1,
   description: "Blogs MDX publishing schema.",
   scope: "blogs",
-  version: "1.0.55",
+  version: "1.0.1",
   steps: [
     step(taxonomyMigration, migrateTaxonomyModule),
     step(articleMigration, migrateArticleModule),

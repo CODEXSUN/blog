@@ -3,6 +3,8 @@ import { AppError } from "@cxapp/framework/errors";
 import { registerContractRoute } from "@cxapp/framework/http";
 import { z } from "zod";
 import { ArticleService } from "./article.service.js";
+import { sql } from "kysely";
+import { getBlogsDatabase } from "../../database/blogs-database.js";
 const service = new ArticleService(),
   kind = z.enum(["post", "page"]),
   status = z.enum(["draft", "published", "archived"]);
@@ -32,6 +34,18 @@ const record = payload.extend({
   updatedAt: z.string()
 });
 export async function registerArticleRoutes(app: FastifyInstance) {
+  registerContractRoute(app, {
+    method: "GET",
+    url: "/blogs/dashboard",
+    schemas: {
+      response: z.object({ total: z.number(), published: z.number(), drafts: z.number(), archived: z.number() })
+    },
+    handler: async () => {
+      const result = await sql<{ status: string; total: number | string }>`SELECT status, COUNT(*) AS total FROM blogs_articles GROUP BY status`.execute(getBlogsDatabase());
+      const counts = new Map(result.rows.map((row) => [row.status, Number(row.total)]));
+      return { total: [...counts.values()].reduce((sum, value) => sum + value, 0), published: counts.get("published") ?? 0, drafts: counts.get("draft") ?? 0, archived: counts.get("archived") ?? 0 };
+    }
+  });
   app.get("/sitemap.xml", async (_request, reply) => {
     const articles = await service.list({ publicOnly: true });
     const origin = blogsOrigin();

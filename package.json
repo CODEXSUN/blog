@@ -1,6 +1,6 @@
 {
   "name": "@codexsun/blog",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "private": false,
   "type": "module",
   "exports": {
@@ -15,10 +15,12 @@
     "src/contracts"
   ],
   "scripts": {
-    "build": "npm run clean && npm run build -ws --if-present",
-    "typecheck": "npm run typecheck -ws --if-present",
+    "build": "npm run clean && npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "check:versions": "node tools/check-versions.mjs",
+    "version:show": "node tools/version.mjs show",
     "version:bump": "node tools/version-bump.mjs",
+    "changelog:append": "node tools/version.mjs append",
     "github:now": "node tools/github-now.mjs",
     "git:release": "node tools/git-release.mjs",
     "clean": "node tools/clean.mjs"

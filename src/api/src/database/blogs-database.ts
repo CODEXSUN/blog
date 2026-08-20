@@ -18,6 +18,10 @@ import {
 import { seedTaxonomyModule } from "../modules/taxonomy/taxonomy.seed.js";
 import { seedArticleModule } from "../modules/article/article.seed.js";
 import {
+  blogStandardTablesMigration,
+  migrateBlogStandardTables
+} from "./blog-standard-tables.migration.js";
+import {
   blogsExperienceMigration,
   migrateBlogsExperience
 } from "./blogs-experience.migration.js";
@@ -42,6 +46,13 @@ export const blogsMigrationBatch: MigrationBatch<BlogsDatabase> = {
       name: blogsExperienceMigration.key,
       up: migrateBlogsExperience,
       version: 2
+    },
+    {
+      checksum: `${blogStandardTablesMigration.key}:v1`,
+      description: blogStandardTablesMigration.description,
+      name: blogStandardTablesMigration.key,
+      up: migrateBlogStandardTables,
+      version: 3
     }
   ]
 };

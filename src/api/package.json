@@ -1,6 +1,6 @@
 {
   "name": "@codexsun/blogs-api",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "private": false,
   "type": "module",
   "exports": {

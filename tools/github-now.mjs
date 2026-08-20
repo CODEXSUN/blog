@@ -35,7 +35,8 @@ if (yes(bump)) {
   runGit(["commit", "-m", `chore: prepare ${title}`]);
 }
 const latest = JSON.parse(readFileSync(packagePath, "utf8")).version;
-const message = await ask("  Commit message", `[v ${latest}] ${title}`);
+const releaseNumber = Number(latest.split(".").at(-1));
+const message = await ask("  Commit message", `#${releaseNumber} - ${title}`);
 const confirmation = await ask("  Continue with pull, commit, and push? [y/N]", "n");
 if (!yes(confirmation)) throw new Error("Cancelled.");
 runGit(["fetch", "origin", "--prune"]);

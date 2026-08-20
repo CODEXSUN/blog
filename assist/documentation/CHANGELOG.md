@@ -2,11 +2,11 @@
 
 ## Version State
 
-Current version: 1.0.6
+Current version: 1.0.8
 
-Release tag: v-1.0.6
+Release tag: v-1.0.8
 
-Changelog label: v 1.0.6
+Changelog label: v 1.0.8
 
 This changelog records the standalone CODEXSUN Blog package. Database-facing work and application codebase work remain separate in every release entry.
 
@@ -19,6 +19,30 @@ Records schema, migrations, repeatable seeds, tenant database ownership, and dat
 #### App Codebase Changes
 
 API, web, editor, SEO, service logic, contracts, tooling, packaging, integration, and documentation changes.
+
+## v-1.0.8
+
+### [v 1.0.8] 2026-08-20 8:22 pm - Release update
+
+#### Database Changes
+
+- Database update: No (auto-check).
+
+#### App Codebase Changes
+
+- Bumped workspace version to 1.0.8.
+
+## v-1.0.7
+
+### [v 1.0.7] 2026-08-20 8:22 pm - Release update
+
+#### Database Changes
+
+- Database update: No (auto-check).
+
+#### App Codebase Changes
+
+- Bumped workspace version to 1.0.7.
 
 ## v-1.0.6
 

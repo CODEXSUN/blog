@@ -2,11 +2,11 @@
 
 ## Version State
 
-Current version: 1.0.8
+Current version: 1.0.9
 
-Release tag: v-1.0.8
+Release tag: v-1.0.9
 
-Changelog label: v 1.0.8
+Changelog label: v 1.0.9
 
 This changelog records the standalone CODEXSUN Blog package. Database-facing work and application codebase work remain separate in every release entry.
 
@@ -19,6 +19,25 @@ Records schema, migrations, repeatable seeds, tenant database ownership, and dat
 #### App Codebase Changes
 
 API, web, editor, SEO, service logic, contracts, tooling, packaging, integration, and documentation changes.
+
+## v-1.0.9
+
+### [v 1.0.9] 2026-08-20 11:50 pm - Business content and public Blog navigation
+
+#### Database Changes
+
+- Database update: Yes (manual).
+- Added repeatable taxonomy and eight published stories about business operations, accounting, billing, manufacturing, inventory, and automation.
+- Keyed taxonomy seed lookups by kind and slug to keep matching category and tag slugs distinct.
+
+#### App Codebase Changes
+
+- Bumped workspace version to 1.0.9.
+- Redesigned the public Blog list with an always-comfortable editorial layout.
+- Added latest, category, tag, and recent-story filters in the Blog sidebar.
+- Removed the search toolbar and Reading view density control.
+- Added host-configurable media paths and generated image fallbacks for Blog lists and article pages.
+- Improved public article navigation, media handling, responsive spacing, and discussion presentation.
 
 ## v-1.0.8
 

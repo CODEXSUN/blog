@@ -6,30 +6,37 @@ import {
   getPublicDiscussions,
   getPublicTaxonomy,
   saveDiscussion,
-  saveEngagement
+  saveEngagement,
 } from "./public-blog.services";
 import type { PublicDiscussion } from "./public-blog.types";
+import { blogMediaUrl, blogPlaceholder } from "./media";
 
-export function PublicArticlePage({ slug }: { slug: string }) {
+export function PublicArticlePage({
+  slug,
+  mediaBasePath = "/storage/public/blogs/images",
+}: {
+  slug: string;
+  mediaBasePath?: string;
+}) {
   const client = useQueryClient();
   const articleQuery = useQuery({
     queryKey: ["public-blog", slug],
-    queryFn: () => getPublicArticle(slug)
+    queryFn: () => getPublicArticle(slug),
   });
   const article = articleQuery.data;
   const taxonomyQuery = useQuery({
     queryKey: ["public-blog-taxonomy"],
-    queryFn: getPublicTaxonomy
+    queryFn: getPublicTaxonomy,
   });
   const discussionsQuery = useQuery({
     queryKey: ["public-blog-discussions", article?.id],
     queryFn: () => getPublicDiscussions(article!.id),
-    enabled: Boolean(article)
+    enabled: Boolean(article),
   });
   const engagementQuery = useQuery({
     queryKey: ["public-blog-engagement", article?.id],
     queryFn: () => getEngagement(article!.id),
-    enabled: Boolean(article)
+    enabled: Boolean(article),
   });
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
@@ -39,11 +46,12 @@ export function PublicArticlePage({ slug }: { slug: string }) {
     onSuccess: () => {
       setNotice("Thanks — your contribution is awaiting moderation.");
       setReplyTo(null);
-    }
+    },
   });
   const engage = useMutation({
     mutationFn: saveEngagement,
-    onSuccess: (data) => client.setQueryData(["public-blog-engagement", article?.id], data)
+    onSuccess: (data) =>
+      client.setQueryData(["public-blog-engagement", article?.id], data),
   });
   useEffect(() => {
     if (!article) return;
@@ -51,27 +59,33 @@ export function PublicArticlePage({ slug }: { slug: string }) {
     setMeta("description", article.seoDescription || article.excerpt);
     setCanonical(article.canonicalUrl || window.location.href);
   }, [article]);
-  if (articleQuery.isLoading) return <div className="public-article-state">Loading story…</div>;
+  if (articleQuery.isLoading)
+    return <div className="public-article-state">Loading story…</div>;
   if (articleQuery.error || !article)
-    return <div className="public-article-state">This story is unavailable.</div>;
+    return (
+      <div className="public-article-state">This story is unavailable.</div>
+    );
   const taxonomy = taxonomyQuery.data ?? [];
   const category = taxonomy.find((item) => item.id === article.categoryId);
   const tags = taxonomy.filter((item) => article.tagIds.includes(item.id));
   const discussions = discussionsQuery.data ?? [];
   const topLevel = discussions.filter((item) => !item.parentId);
   const reactions = engagementQuery.data;
-  const react = (kind: "like" | "star" | "share", rating: number | null = null) =>
+  const react = (
+    kind: "like" | "star" | "share",
+    rating: number | null = null,
+  ) =>
     engage.mutate({
       articleId: article.id,
       kind,
       actorKey,
       rating,
-      channel: kind === "share" ? "native" : "blog"
+      channel: kind === "share" ? "native" : "blog",
     });
   return (
     <main className="public-article">
       <nav>
-        <a href="/blog">Journal</a>
+        <a href="/blog">Back to blog</a>
         <span>/</span>
         <span>{category?.name ?? "Article"}</span>
       </nav>
@@ -84,20 +98,36 @@ export function PublicArticlePage({ slug }: { slug: string }) {
         <p>{article.excerpt}</p>
         <div className="public-author">
           {article.authorAvatar ? (
-            <img src={article.authorAvatar} alt="" />
+            <img
+              src={blogMediaUrl(article.authorAvatar, mediaBasePath)}
+              alt=""
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = blogPlaceholder(article.authorName);
+              }}
+            />
           ) : (
             <span aria-hidden="true">{initials(article.authorName)}</span>
           )}
           <div>
             <strong>{article.authorName}</strong>
             <small>
-              {article.authorRole} · {formatDate(article.publishedAt ?? article.createdAt)}
+              {article.authorRole} ·{" "}
+              {formatDate(article.publishedAt ?? article.createdAt)}
             </small>
           </div>
         </div>
       </header>
       {article.featuredImage ? (
-        <img className="public-article-cover" src={article.featuredImage} alt={article.imageAlt} />
+        <img
+          className="public-article-cover"
+          src={blogMediaUrl(article.featuredImage, mediaBasePath)}
+          alt={article.imageAlt}
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = blogPlaceholder(article.title);
+          }}
+        />
       ) : null}
       <div className="public-article-layout">
         <aside aria-label="Article actions">
@@ -113,7 +143,10 @@ export function PublicArticlePage({ slug }: { slug: string }) {
             onClick={async () => {
               react("share");
               if (navigator.share)
-                await navigator.share({ title: article.title, url: window.location.href });
+                await navigator.share({
+                  title: article.title,
+                  url: window.location.href,
+                });
               else await navigator.clipboard.writeText(window.location.href);
             }}
           >
@@ -130,8 +163,8 @@ export function PublicArticlePage({ slug }: { slug: string }) {
           ))}
         </div>
         <p>
-          Published {formatDate(article.publishedAt ?? article.createdAt)} · Updated{" "}
-          {formatDate(article.updatedAt)}
+          Published {formatDate(article.publishedAt ?? article.createdAt)} ·
+          Updated {formatDate(article.updatedAt)}
         </p>
       </footer>
       <section className="public-discussion">
@@ -153,7 +186,9 @@ export function PublicArticlePage({ slug }: { slug: string }) {
           {topLevel.map((item) => (
             <div key={item.id} className="public-comment">
               <Comment item={item} />
-              <button onClick={() => setReplyTo(replyTo === item.id ? null : item.id)}>
+              <button
+                onClick={() => setReplyTo(replyTo === item.id ? null : item.id)}
+              >
                 Reply
               </button>
               {discussions
@@ -183,13 +218,16 @@ function DiscussionForm({
   articleId,
   parentId,
   pending,
-  onSubmit
+  onSubmit,
 }: {
   articleId: number;
   parentId: number | null;
   pending: boolean;
   onSubmit: (
-    value: Omit<PublicDiscussion, "id" | "uuid" | "status" | "createdAt" | "updatedAt">
+    value: Omit<
+      PublicDiscussion,
+      "id" | "uuid" | "status" | "createdAt" | "updatedAt"
+    >,
   ) => void;
 }) {
   const [kind, setKind] = useState<"comment" | "review">("comment");
@@ -206,15 +244,23 @@ function DiscussionForm({
           authorName: String(data.get("name")),
           authorEmail: String(data.get("email")),
           body: String(data.get("body")),
-          rating: kind === "review" ? Number(data.get("rating")) : null
+          rating: kind === "review" ? Number(data.get("rating")) : null,
         });
         event.currentTarget.reset();
       }}
     >
       <div>
         <input name="name" required placeholder="Your name" />
-        <input name="email" type="email" required placeholder="Email (not published)" />
-        <select value={kind} onChange={(e) => setKind(e.target.value as "comment" | "review")}>
+        <input
+          name="email"
+          type="email"
+          required
+          placeholder="Email (not published)"
+        />
+        <select
+          value={kind}
+          onChange={(e) => setKind(e.target.value as "comment" | "review")}
+        >
           <option value="comment">Comment</option>
           <option value="review">Review</option>
         </select>
@@ -232,7 +278,9 @@ function DiscussionForm({
         name="body"
         required
         minLength={2}
-        placeholder={parentId ? "Write a thoughtful reply…" : "Join the conversation…"}
+        placeholder={
+          parentId ? "Write a thoughtful reply…" : "Join the conversation…"
+        }
       />
       <button disabled={pending}>
         {pending ? "Sending…" : parentId ? "Post reply" : "Post contribution"}
@@ -259,7 +307,9 @@ function readTime(value: string) {
   return Math.max(1, Math.ceil(value.trim().split(/\s+/u).length / 220));
 }
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(value));
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
+    new Date(value),
+  );
 }
 function initials(value: string) {
   return value
@@ -270,7 +320,8 @@ function initials(value: string) {
     .toUpperCase();
 }
 function visitorKey() {
-  const key = localStorage.getItem("codexsun.blog.visitor") ?? crypto.randomUUID();
+  const key =
+    localStorage.getItem("codexsun.blog.visitor") ?? crypto.randomUUID();
   localStorage.setItem("codexsun.blog.visitor", key);
   return key;
 }
@@ -291,7 +342,9 @@ function renderMarkdown(source: string) {
   });
 }
 function setMeta(name: string, content: string) {
-  let element = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
+  let element = document.head.querySelector<HTMLMetaElement>(
+    `meta[name="${name}"]`,
+  );
   if (!element) {
     element = document.createElement("meta");
     element.name = name;
@@ -300,7 +353,9 @@ function setMeta(name: string, content: string) {
   element.content = content;
 }
 function setCanonical(href: string) {
-  let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  let element = document.head.querySelector<HTMLLinkElement>(
+    'link[rel="canonical"]',
+  );
   if (!element) {
     element = document.createElement("link");
     element.rel = "canonical";

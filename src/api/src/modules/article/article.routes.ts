@@ -1,13 +1,13 @@
 import type { FastifyInstance } from "fastify";
-import { AppError } from "@cxapp/framework/errors";
-import { registerContractRoute } from "@cxapp/framework/http";
+import { BlogError } from "../../runtime/blog-error.js";
+import { registerBlogRoute } from "../../runtime/blog-http.js";
 import { z } from "zod";
 import { ArticleService } from "./article.service.js";
 import { sql } from "kysely";
-import { getBlogsDatabase } from "../../database/blogs-database.js";
+import { getBlogRequestContext, getBlogsDatabase } from "../../runtime/blog-host.js";
 const service = new ArticleService(),
   kind = z.enum(["post", "page"]),
-  status = z.enum(["draft", "published", "archived"]);
+  status = z.enum(["draft", "published", "suspended", "archived"]);
 const payload = z.object({
   kind,
   title: z.string().min(1).max(255),
@@ -19,32 +19,56 @@ const payload = z.object({
   authorName: z.string().min(1).max(191).default("Editorial Team"),
   authorRole: z.string().max(191).default("Technology Editor"),
   authorAvatar: z.string().max(1000).default(""),
+  authorUserUuid: z.string().length(8).nullable().default(null),
+  displayPosition: z.number().int().min(0).max(100000).default(100),
   categoryId: z.number().int().positive().nullable().default(null),
   tagIds: z.array(z.number().int().positive()).max(30).default([]),
   seoTitle: z.string().max(191).default(""),
   seoDescription: z.string().max(320).default(""),
   canonicalUrl: z.string().max(1000).default(""),
-  status: status.default("draft")
+  status: status.default("draft"),
 });
 const record = payload.extend({
   id: z.number(),
   uuid: z.string().length(8),
+  commentCount: z.number(),
+  viewCount: z.number(),
+  favoriteCount: z.number(),
   publishedAt: z.string().nullable(),
   createdAt: z.string(),
-  updatedAt: z.string()
+  updatedAt: z.string(),
 });
 export async function registerArticleRoutes(app: FastifyInstance) {
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "GET",
     url: "/blogs/dashboard",
     schemas: {
-      response: z.object({ total: z.number(), published: z.number(), drafts: z.number(), archived: z.number() })
+      response: z.object({
+        total: z.number(),
+        published: z.number(),
+        drafts: z.number(),
+        suspended: z.number(),
+        archived: z.number(),
+      }),
     },
     handler: async () => {
-      const result = await sql<{ status: string; total: number | string }>`SELECT status, COUNT(*) AS total FROM blogs_articles GROUP BY status`.execute(getBlogsDatabase());
-      const counts = new Map(result.rows.map((row) => [row.status, Number(row.total)]));
-      return { total: [...counts.values()].reduce((sum, value) => sum + value, 0), published: counts.get("published") ?? 0, drafts: counts.get("draft") ?? 0, archived: counts.get("archived") ?? 0 };
-    }
+      const result = await sql<{
+        status: string;
+        total: number | string;
+      }>`SELECT status, COUNT(*) AS total FROM blogs_articles GROUP BY status`.execute(
+        getBlogsDatabase(),
+      );
+      const counts = new Map(
+        result.rows.map((row) => [row.status, Number(row.total)]),
+      );
+      return {
+        total: [...counts.values()].reduce((sum, value) => sum + value, 0),
+        published: counts.get("published") ?? 0,
+        drafts: counts.get("draft") ?? 0,
+        suspended: counts.get("suspended") ?? 0,
+        archived: counts.get("archived") ?? 0,
+      };
+    },
   });
   app.get("/sitemap.xml", async (_request, reply) => {
     const articles = await service.list({ publicOnly: true });
@@ -52,73 +76,98 @@ export async function registerArticleRoutes(app: FastifyInstance) {
     const urls = articles
       .map(
         (item) =>
-          `<url><loc>${origin}/blog/${item.slug}</loc><lastmod>${item.updatedAt}</lastmod></url>`
+          `<url><loc>${origin}/blog/${item.slug}</loc><lastmod>${item.updatedAt}</lastmod></url>`,
       )
       .join("");
     return reply
       .type("application/xml")
       .send(
-        `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin}/blog</loc></url>${urls}</urlset>`
+        `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin}/blog</loc></url>${urls}</urlset>`,
       );
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "GET",
     url: "/blogs/articles",
     schemas: {
-      querystring: z.object({ search: z.string().optional(), kind: kind.optional() }),
-      response: z.array(record)
+      querystring: z.object({
+        search: z.string().optional(),
+        kind: kind.optional(),
+      }),
+      response: z.array(record),
     },
     handler: ({ query }) =>
       service.list({
         ...(query.search ? { search: query.search } : {}),
-        ...(query.kind ? { kind: query.kind } : {})
-      })
+        ...(query.kind ? { kind: query.kind } : {}),
+      }),
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "POST",
     url: "/blogs/articles",
     schemas: { body: payload, response: record },
-    handler: async ({ body }) => required(await service.save(body))
+    handler: async ({ body }) => required(await service.save(body)),
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "PUT",
     url: "/blogs/articles/:id",
     schemas: {
       params: z.object({ id: z.coerce.number().int().positive() }),
       body: payload,
-      response: record
+      response: record,
     },
-    handler: async ({ params, body }) => required(await service.save(body, params.id))
+    handler: async ({ params, body }) =>
+      required(await service.save(body, params.id)),
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
+    method: "POST",
+    url: "/blogs/articles/:id/suspend",
+    schemas: {
+      params: z.object({ id: z.coerce.number().int().positive() }),
+      response: record,
+    },
+    handler: ({ params }) => service.suspend(params.id),
+  });
+  registerBlogRoute(app, {
+    method: "DELETE",
+    url: "/blogs/articles/:id/force",
+    schemas: {
+      params: z.object({ id: z.coerce.number().int().positive() }),
+      response: record,
+    },
+    handler: ({ params }) => service.forceDelete(params.id),
+  });
+  registerBlogRoute(app, {
     method: "GET",
     url: "/public/blog",
     schemas: {
-      querystring: z.object({ search: z.string().optional(), kind: kind.optional() }),
-      response: z.array(record)
+      querystring: z.object({
+        search: z.string().optional(),
+        kind: kind.optional(),
+      }),
+      response: z.array(record),
     },
     handler: ({ query }) =>
       service.list({
         publicOnly: true,
         ...(query.search ? { search: query.search } : {}),
-        ...(query.kind ? { kind: query.kind } : {})
-      })
+        ...(query.kind ? { kind: query.kind } : {}),
+      }),
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "GET",
     url: "/public/blog/:slug",
     schemas: { params: z.object({ slug: z.string() }), response: record },
     handler: async ({ params }) => {
       const item = await service.findBySlug(params.slug, true);
-      if (!item) throw AppError.notFound("Article was not found.");
+      if (!item) throw BlogError.notFound("Article was not found.");
       return item;
-    }
+    },
   });
 }
 function blogsOrigin() {
-  return (process.env.CXSHOP_PUBLIC_ORIGIN || "http://localhost:5173").replace(/\/$/u, "");
+  return getBlogRequestContext().origin;
 }
 function required<T>(value: T | null): T {
-  if (!value) throw AppError.notFound("Article was not found.");
+  if (!value) throw BlogError.notFound("Article was not found.");
   return value;
 }

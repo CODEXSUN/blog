@@ -1,4 +1,4 @@
-import { AppError } from "@cxapp/framework/errors";
+import { BlogError } from "../../runtime/blog-error.js";
 import { TaxonomyRepository } from "./taxonomy.repository.js";
 import type { TaxonomyKind, TaxonomySaveInput } from "./taxonomy.types.js";
 export class TaxonomyService {
@@ -14,9 +14,9 @@ export class TaxonomyService {
       description: input.description.trim()
     };
     if (!value.name || !value.slug)
-      throw AppError.validation("Taxonomy name and slug are required.");
+      throw BlogError.validation("Taxonomy name and slug are required.");
     if (await this.repository.duplicate(value.kind, value.slug, id))
-      throw AppError.conflict("This category or tag slug already exists.");
+      throw BlogError.conflict("This category or tag slug already exists.");
     return id ? this.repository.update(id, value) : this.repository.create(value);
   }
 }

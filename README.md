@@ -1,18 +1,18 @@
 # CODEXSUN Blog
 
-Centralised, multi-tenant blog capability for CODEXSUN products. The repository owns blog content, taxonomy, discussions, engagement, public SEO pages, and the editorial workspace. CXApp and TechMedia integrate it through public module exports and HTTP contracts.
+Centralised Blog add-on for multi-tenant and single-client CODEXSUN products. The repository owns blog content, taxonomy, discussions, engagement, public SEO pages, the editorial workspace, migrations, and seeds. A host integrates it through the public manifest, API lifecycle, and React exports.
 
 ## Packages
 
-- `@codexsun/blogs-api` — Fastify module, MariaDB migrations, tenant-scoped repositories, public and protected routes.
-- `@codexsun/blogs-web` — editor and public React modules.
-- `@codexsun/blogs-contracts` — host-neutral plugin manifest and integration types.
+- `@codexsun/blog/api` — Fastify routes plus host-owned migration and seed lifecycle.
+- `@codexsun/blog/web` — editor and public React modules with no CXApp or CXShop UI dependency.
+- `@codexsun/blog/contracts` — host-neutral add-on manifest and integration types.
 
 Install exact GitHub tags in production:
 
 ```json
-{"dependencies":{"@codexsun/blogs-api":"github:CODEXSUN/blog#v-1.0.0","@codexsun/blogs-web":"github:CODEXSUN/blog#v-1.0.0","@codexsun/blogs-contracts":"github:CODEXSUN/blog#v-1.0.0"}}
+{"dependencies":{"@codexsun/blog":"github:CODEXSUN/blog#v-1.0.9"}}
 ```
 
-See `docs/integration.md` for the production contract.
+The current source contains the host-adapter contract that will ship in the next Blog release. See `docs/integration.md` for the production contract and upgrade sequence.
 blog

@@ -1,8 +1,8 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": false,
-    "outDir": "../../../dist/apps/blogs/api",
+    "outDir": "../../dist/apps/blogs/api",
     "rootDir": "src"
   },
   "include": ["src/**/*.ts"]

@@ -1,102 +1,112 @@
-import { Kysely, MysqlDialect } from "kysely";
-import { createPool } from "mysql2";
-import { runMigrationBatch, type MigrationBatch } from "@cxapp/framework/db";
-import { blogsEnv } from "../env.js";
-import { articleMigration, migrateArticleModule } from "../modules/article/article.migration.js";
+import type { Kysely } from "kysely";
+import {
+  type BlogsDatabase,
+  type BlogRequestContext,
+  withBlogContext,
+} from "../runtime/blog-host.js";
+import {
+  articleMigration,
+  migrateArticleModule,
+} from "../modules/article/article.migration.js";
 import {
   discussionMigration,
-  migrateDiscussionModule
+  migrateDiscussionModule,
 } from "../modules/discussion/discussion.migration.js";
 import {
   engagementMigration,
-  migrateEngagementModule
+  migrateEngagementModule,
 } from "../modules/engagement/engagement.migration.js";
 import {
   taxonomyMigration,
-  migrateTaxonomyModule
+  migrateTaxonomyModule,
 } from "../modules/taxonomy/taxonomy.migration.js";
 import { seedTaxonomyModule } from "../modules/taxonomy/taxonomy.seed.js";
 import { seedArticleModule } from "../modules/article/article.seed.js";
+import { seedArticleTemplateModule } from "../modules/article-template/article-template.seed.js";
+import {
+  blogsLiveEditorMigration,
+  migrateBlogsLiveEditor,
+} from "./blogs-live-editor.migration.js";
 import {
   blogStandardTablesMigration,
-  migrateBlogStandardTables
+  migrateBlogStandardTables,
 } from "./blog-standard-tables.migration.js";
 import {
   blogsExperienceMigration,
-  migrateBlogsExperience
+  migrateBlogsExperience,
 } from "./blogs-experience.migration.js";
 
-export type BlogsDatabase = Record<string, unknown>;
-let database: Kysely<BlogsDatabase> | undefined;
-let bootstrapped = false;
+export type BlogMigrationStep = {
+  checksum: string;
+  description: string;
+  down?: (database: Kysely<BlogsDatabase>) => Promise<unknown>;
+  name: string;
+  up: (database: Kysely<BlogsDatabase>) => Promise<unknown>;
+  version: number;
+};
 
-export const blogsMigrationBatch: MigrationBatch<BlogsDatabase> = {
+export type BlogMigrationBatch = {
+  batch: number;
+  description: string;
+  scope: "blogs";
+  steps: readonly BlogMigrationStep[];
+  version: string;
+};
+
+export type BlogMigrationRunner = (
+  database: Kysely<BlogsDatabase>,
+  batch: BlogMigrationBatch,
+) => Promise<unknown>;
+
+export const blogsMigrationBatch: BlogMigrationBatch = {
   batch: 1,
-  description: "Blogs MDX publishing schema.",
+  description: "Database-backed Blog publishing schema.",
   scope: "blogs",
-  version: "1.0.1",
+  version: "1.0.9",
   steps: [
     step(taxonomyMigration, migrateTaxonomyModule),
     step(articleMigration, migrateArticleModule),
     step(discussionMigration, migrateDiscussionModule),
     step(engagementMigration, migrateEngagementModule),
-    {
-      checksum: `${blogsExperienceMigration.key}:v1`,
-      description: blogsExperienceMigration.description,
-      name: blogsExperienceMigration.key,
-      up: migrateBlogsExperience,
-      version: 2
-    },
-    {
-      checksum: `${blogStandardTablesMigration.key}:v1`,
-      description: blogStandardTablesMigration.description,
-      name: blogStandardTablesMigration.key,
-      up: migrateBlogStandardTables,
-      version: 3
-    }
-  ]
+    step(blogsExperienceMigration, migrateBlogsExperience, 2),
+    step(blogStandardTablesMigration, migrateBlogStandardTables, 3),
+    step(blogsLiveEditorMigration, migrateBlogsLiveEditor, 4),
+  ],
 };
 
-export function getBlogsDatabase() {
-  database ??= new Kysely<BlogsDatabase>({
-    dialect: new MysqlDialect({
-      pool: createPool({
-        database: blogsEnv.DB_MASTER_NAME,
-        host: blogsEnv.DB_HOST,
-        password: blogsEnv.DB_PASSWORD,
-        port: blogsEnv.DB_PORT,
-        user: blogsEnv.DB_USER,
-        connectionLimit: 4,
-        timezone: "Z"
-      })
-    })
+export async function provisionBlogsDatabase(input: {
+  context: BlogRequestContext;
+  runMigrationBatch: BlogMigrationRunner;
+}) {
+  await input.runMigrationBatch(input.context.database, blogsMigrationBatch);
+  await seedBlogsDatabase(input.context);
+}
+
+export async function migrateBlogsDatabase(
+  database: Kysely<BlogsDatabase>,
+  runMigrationBatch: BlogMigrationRunner,
+) {
+  return runMigrationBatch(database, blogsMigrationBatch);
+}
+
+export async function seedBlogsDatabase(context: BlogRequestContext) {
+  return withBlogContext(context, async () => {
+    await seedTaxonomyModule();
+    await seedArticleTemplateModule();
+    await seedArticleModule();
   });
-  return database;
-}
-
-export async function bootstrapBlogsDatabase() {
-  if (bootstrapped) return;
-  await runMigrationBatch(getBlogsDatabase(), blogsMigrationBatch);
-  await seedTaxonomyModule();
-  await seedArticleModule();
-  bootstrapped = true;
-}
-
-export async function closeBlogsDatabase() {
-  await database?.destroy();
-  database = undefined;
-  bootstrapped = false;
 }
 
 function step(
   migration: { description: string; key: string },
-  up: (db: Kysely<BlogsDatabase>) => Promise<void>
-) {
+  up: (database: Kysely<BlogsDatabase>) => Promise<void>,
+  version = 1,
+): BlogMigrationStep {
   return {
-    checksum: `${migration.key}:v1`,
+    checksum: `${migration.key}:v${version}`,
     description: migration.description,
     name: migration.key,
     up,
-    version: 1
+    version,
   };
 }

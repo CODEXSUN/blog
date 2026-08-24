@@ -1,5 +1,5 @@
 import { sql, type Kysely } from "kysely";
-import type { BlogsDatabase } from "../../database/blogs-database.js";
+import type { BlogsDatabase } from "../../runtime/blog-host.js";
 export const engagementMigration = {
   key: "blogs.engagement",
   description: "Article likes, stars, and share analytics."

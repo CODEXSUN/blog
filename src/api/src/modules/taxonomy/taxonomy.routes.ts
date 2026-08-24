@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { registerContractRoute } from "@cxapp/framework/http";
+import { registerBlogRoute } from "../../runtime/blog-http.js";
 import { z } from "zod";
 import { TaxonomyService } from "./taxonomy.service.js";
 const service = new TaxonomyService();
@@ -19,25 +19,25 @@ const record = payload.extend({
   updatedAt: z.string()
 });
 export async function registerTaxonomyRoutes(app: FastifyInstance) {
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "GET",
     url: "/blogs/taxonomy",
     schemas: { querystring: z.object({ kind: kind.optional() }), response: z.array(record) },
     handler: ({ query }) => service.list(query.kind)
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "GET",
     url: "/public/blog-taxonomy",
     schemas: { querystring: z.object({ kind: kind.optional() }), response: z.array(record) },
     handler: ({ query }) => service.list(query.kind)
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "POST",
     url: "/blogs/taxonomy",
     schemas: { body: payload, response: record },
     handler: async ({ body }) => required(await service.save(body))
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "PUT",
     url: "/blogs/taxonomy/:id",
     schemas: {

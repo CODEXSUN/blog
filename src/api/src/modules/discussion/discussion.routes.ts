@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { registerContractRoute } from "@cxapp/framework/http";
+import { registerBlogRoute } from "../../runtime/blog-http.js";
 import { z } from "zod";
 import { DiscussionService } from "./discussion.service.js";
 const service = new DiscussionService(),
@@ -21,7 +21,7 @@ const service = new DiscussionService(),
     updatedAt: z.string()
   });
 export async function registerDiscussionRoutes(app: FastifyInstance) {
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "GET",
     url: "/blogs/discussions",
     schemas: {
@@ -30,13 +30,13 @@ export async function registerDiscussionRoutes(app: FastifyInstance) {
     },
     handler: ({ query }) => service.list(query.articleId)
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "POST",
     url: "/public/blog/discussions",
     schemas: { body: payload, response: record },
     handler: async ({ body }) => required(await service.create(body))
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "GET",
     url: "/public/blog/:articleId/discussions",
     schemas: {
@@ -45,7 +45,7 @@ export async function registerDiscussionRoutes(app: FastifyInstance) {
     },
     handler: ({ params }) => service.list(params.articleId, true)
   });
-  registerContractRoute(app, {
+  registerBlogRoute(app, {
     method: "POST",
     url: "/blogs/discussions/:id/moderate",
     schemas: {

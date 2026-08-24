@@ -20,6 +20,21 @@ Records schema, migrations, repeatable seeds, tenant database ownership, and dat
 
 API, web, editor, SEO, service logic, contracts, tooling, packaging, integration, and documentation changes.
 
+## Unreleased
+
+#### Database Changes
+
+- Database update: Integration lifecycle changed; owner tables are unchanged.
+- Replaced the global Blog connection with a host-provided database context per request.
+- Exported host-owned migration and repeatable seed provisioning for multi-tenant and single-client scopes.
+
+#### App Codebase Changes
+
+- Removed CXApp framework and UI dependencies from the API and web workspaces.
+- Added the versioned add-on manifest, structural errors, request-context isolation, and host authorization adapter.
+- Added host-neutral editor UI primitives and documented the exact-tag integration and upgrade flow.
+- Added contract compilation and a smoke test for the manifest and concurrent request-context isolation.
+
 ## v-1.0.9
 
 ### [v 1.0.9] 2026-08-20 11:50 pm - Business content and public Blog navigation

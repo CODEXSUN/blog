@@ -1,13 +1,11 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "types": ["vite/client", "node"],
-    "paths": {
-      "@cxapp/ui": ["../../../packages/ui/src/index.ts"],
-      "@cxapp/ui/components/*": ["../../../packages/ui/src/components/*"],
-      "@cxapp/ui/workspace/*": ["../../../packages/ui/src/workspace/*"]
-    }
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

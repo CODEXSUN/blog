@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { sql } from "kysely";
-import { getBlogsDatabase } from "../../database/blogs-database.js";
+import { getBlogsDatabase } from "../../runtime/blog-host.js";
 import type { DiscussionRecord, DiscussionSaveInput } from "./discussion.types.js";
 type Row = Record<string, unknown> & {
   id: number | string;

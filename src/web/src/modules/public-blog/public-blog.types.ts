@@ -11,6 +11,9 @@ export type PublicArticle = {
   authorName: string;
   authorRole: string;
   authorAvatar: string;
+  commentCount: number;
+  viewCount: number;
+  favoriteCount: number;
   categoryId: number | null;
   tagIds: number[];
   seoTitle: string;
@@ -23,4 +26,4 @@ export type PublicArticle = {
 };
 export type PublicTaxonomy = { id: number; kind: "category" | "tag"; name: string; slug: string; description: string; status: "active" | "inactive"; uuid: string; createdAt: string; updatedAt: string };
 export type PublicDiscussion = { id: number; uuid: string; articleId: number; parentId: number | null; kind: "comment" | "review"; authorName: string; authorEmail: string; body: string; rating: number | null; status: "pending" | "approved" | "rejected"; createdAt: string; updatedAt: string };
-export type EngagementSummary = { articleId: number; likes: number; stars: number; shares: number; averageStar: number };
+export type EngagementSummary = { articleId: number; likes: number; stars: number; shares: number; views: number; favorites: number; averageStar: number };

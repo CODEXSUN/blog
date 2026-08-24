@@ -1,5 +1,5 @@
 import { sql, type Kysely } from "kysely";
-import type { BlogsDatabase } from "./blogs-database.js";
+import type { BlogsDatabase } from "../runtime/blog-host.js";
 
 export const blogStandardTablesMigration = {
   key: "blogs.standard-tables",

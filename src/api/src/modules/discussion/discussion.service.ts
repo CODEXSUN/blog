@@ -1,4 +1,4 @@
-import { AppError } from "@cxapp/framework/errors";
+import { BlogError } from "../../runtime/blog-error.js";
 import { DiscussionRepository } from "./discussion.repository.js";
 import type { DiscussionSaveInput } from "./discussion.types.js";
 export class DiscussionService {
@@ -15,15 +15,15 @@ export class DiscussionService {
       rating: input.kind === "review" ? input.rating : null
     };
     if (!value.authorName || !value.authorEmail || !value.body)
-      throw AppError.validation("Name, email, and content are required.");
+      throw BlogError.validation("Name, email, and content are required.");
     if (value.kind === "review" && (!value.rating || value.rating < 1 || value.rating > 5))
-      throw AppError.validation("Reviews require a rating from 1 to 5.");
+      throw BlogError.validation("Reviews require a rating from 1 to 5.");
     if (!(await this.repository.articlePublished(value.articleId)))
-      throw AppError.notFound("Published article was not found.");
+      throw BlogError.notFound("Published article was not found.");
     if (value.parentId) {
       const parent = await this.repository.find(value.parentId);
       if (!parent || parent.articleId !== value.articleId)
-        throw AppError.validation("Reply parent must belong to the same article.");
+        throw BlogError.validation("Reply parent must belong to the same article.");
     }
     return this.repository.create(value);
   }

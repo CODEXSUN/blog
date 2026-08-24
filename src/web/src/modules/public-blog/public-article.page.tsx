@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getEngagement,
@@ -10,6 +10,7 @@ import {
 } from "./public-blog.services";
 import type { PublicDiscussion } from "./public-blog.types";
 import { blogMediaUrl, blogPlaceholder } from "./media";
+import { blogVisitorKey } from "./visitor";
 
 export function PublicArticlePage({
   slug,
@@ -40,7 +41,8 @@ export function PublicArticlePage({
   });
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
-  const actorKey = useMemo(visitorKey, []);
+  const actorKey = useMemo(blogVisitorKey, []);
+  const viewedArticleId = useRef<number | null>(null);
   const discussion = useMutation({
     mutationFn: saveDiscussion,
     onSuccess: () => {
@@ -59,6 +61,21 @@ export function PublicArticlePage({
     setMeta("description", article.seoDescription || article.excerpt);
     setCanonical(article.canonicalUrl || window.location.href);
   }, [article]);
+  useEffect(() => {
+    if (!article || viewedArticleId.current === article.id) return;
+    viewedArticleId.current = article.id;
+    void saveEngagement({
+      articleId: article.id,
+      kind: "view",
+      actorKey,
+      rating: null,
+      channel: "article",
+    })
+      .then((data) =>
+        client.setQueryData(["public-blog-engagement", article.id], data),
+      )
+      .catch(() => undefined);
+  }, [actorKey, article, client]);
   if (articleQuery.isLoading)
     return <div className="public-article-state">Loading story…</div>;
   if (articleQuery.error || !article)
@@ -318,12 +335,6 @@ function initials(value: string) {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
-}
-function visitorKey() {
-  const key =
-    localStorage.getItem("codexsun.blog.visitor") ?? crypto.randomUUID();
-  localStorage.setItem("codexsun.blog.visitor", key);
-  return key;
 }
 function renderMarkdown(source: string) {
   return source.split(/\n{2,}/u).map((block, index) => {

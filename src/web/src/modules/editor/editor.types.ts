@@ -1,4 +1,4 @@
-export type ArticleStatus = "draft" | "published" | "archived";
+export type ArticleStatus = "draft" | "published" | "suspended" | "archived";
 export type Article = {
   id: number;
   uuid: string;
@@ -12,6 +12,11 @@ export type Article = {
   authorName: string;
   authorRole: string;
   authorAvatar: string;
+  authorUserUuid: string | null;
+  displayPosition: number;
+  commentCount: number;
+  viewCount: number;
+  favoriteCount: number;
   categoryId: number | null;
   tagIds: number[];
   seoTitle: string;
@@ -24,7 +29,14 @@ export type Article = {
 };
 export type ArticlePayload = Omit<
   Article,
-  "id" | "uuid" | "publishedAt" | "createdAt" | "updatedAt"
+  | "id"
+  | "uuid"
+  | "commentCount"
+  | "viewCount"
+  | "favoriteCount"
+  | "publishedAt"
+  | "createdAt"
+  | "updatedAt"
 >;
 export type Taxonomy = {
   id: number;
@@ -36,4 +48,32 @@ export type Taxonomy = {
   status: "active" | "inactive";
   createdAt: string;
   updatedAt: string;
+};
+export type ArticleTemplate = {
+  id: number;
+  uuid: string;
+  name: string;
+  kind: "post" | "page";
+  excerpt: string;
+  content: string;
+  imageAlt: string;
+  seoTitle: string;
+  seoDescription: string;
+};
+export type BlogAuthorOption = {
+  email: string;
+  name: string;
+  status: string;
+  uuid: string;
+};
+export type BlogMediaFile = {
+  mimeType: string;
+  name: string;
+  url: string;
+  uuid: string;
+};
+export type BlogsEditorHost = {
+  listAuthors: (search: string) => Promise<BlogAuthorOption[]>;
+  listImages: () => Promise<BlogMediaFile[]>;
+  uploadImage: (file: File) => Promise<BlogMediaFile>;
 };

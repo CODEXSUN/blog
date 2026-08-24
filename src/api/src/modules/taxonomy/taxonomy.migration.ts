@@ -1,5 +1,5 @@
 import { sql, type Kysely } from "kysely";
-import type { BlogsDatabase } from "../../database/blogs-database.js";
+import type { BlogsDatabase } from "../../runtime/blog-host.js";
 export const taxonomyMigration = {
   key: "blogs.taxonomy",
   description: "Blog categories and tags."

@@ -20,5 +20,7 @@ export const getPublicArticle = (slug: string) =>
 export const getPublicTaxonomy = () => read<PublicTaxonomy[]>("/api/platform/public/blog-taxonomy");
 export const getPublicDiscussions = (articleId: number) => read<PublicDiscussion[]>(`/api/platform/public/blog/${articleId}/discussions`);
 export const getEngagement = (articleId: number) => read<EngagementSummary>(`/api/platform/public/blog/${articleId}/engagement`);
+export const getFavoriteArticleIds = (actorKey: string) => read<number[]>(`/api/platform/public/blog/favorites?actorKey=${encodeURIComponent(actorKey)}`);
 export const saveDiscussion = (value: Omit<PublicDiscussion, "id" | "uuid" | "status" | "createdAt" | "updatedAt">) => write<PublicDiscussion>("/api/platform/public/blog/discussions", value);
-export const saveEngagement = (value: { articleId: number; kind: "like" | "star" | "share"; actorKey: string; rating: number | null; channel: string }) => write<EngagementSummary>("/api/platform/public/blog/engagement", value);
+export const saveEngagement = (value: { articleId: number; kind: "like" | "star" | "share" | "view" | "favorite"; actorKey: string; rating: number | null; channel: string }) => write<EngagementSummary>("/api/platform/public/blog/engagement", value);
+export const setFavorite = (value: { articleId: number; actorKey: string; active: boolean }) => write<EngagementSummary>("/api/platform/public/blog/favorite", value);

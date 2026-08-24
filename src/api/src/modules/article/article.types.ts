@@ -1,4 +1,4 @@
-export type ArticleStatus = "draft" | "published" | "archived";
+export type ArticleStatus = "draft" | "published" | "suspended" | "archived";
 export type ArticleRecord = {
   id: number;
   uuid: string;
@@ -12,6 +12,11 @@ export type ArticleRecord = {
   authorName: string;
   authorRole: string;
   authorAvatar: string;
+  authorUserUuid: string | null;
+  displayPosition: number;
+  commentCount: number;
+  viewCount: number;
+  favoriteCount: number;
   categoryId: number | null;
   tagIds: number[];
   seoTitle: string;
@@ -24,5 +29,12 @@ export type ArticleRecord = {
 };
 export type ArticleSaveInput = Omit<
   ArticleRecord,
-  "id" | "uuid" | "publishedAt" | "createdAt" | "updatedAt"
+  | "id"
+  | "uuid"
+  | "commentCount"
+  | "viewCount"
+  | "favoriteCount"
+  | "publishedAt"
+  | "createdAt"
+  | "updatedAt"
 >;

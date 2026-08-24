@@ -1,5 +1,5 @@
 import { sql, type Kysely } from "kysely";
-import type { BlogsDatabase } from "../../database/blogs-database.js";
+import type { BlogsDatabase } from "../../runtime/blog-host.js";
 export const discussionMigration = {
   key: "blogs.discussion",
   description: "Moderated article comments and reviews."

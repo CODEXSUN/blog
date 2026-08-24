@@ -17,6 +17,7 @@
   "scripts": {
     "build": "npm run clean && npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
+    "smoke:host-contract": "npm run build && node tools/host-contract-smoke.mjs",
     "check:versions": "node tools/check-versions.mjs",
     "version:show": "node tools/version.mjs show",
     "version:bump": "node tools/version-bump.mjs",
@@ -24,5 +25,11 @@
     "github:now": "node tools/github-now.mjs",
     "git:release": "node tools/git-release.mjs",
     "clean": "node tools/clean.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^7.0.2"
   }
 }

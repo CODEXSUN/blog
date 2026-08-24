@@ -1,5 +1,5 @@
 import { sql } from "kysely";
-import { getBlogsDatabase } from "../../database/blogs-database.js";
+import { getBlogsDatabase } from "../../runtime/blog-host.js";
 
 export async function seedArticleModule() {
   const taxonomy = await loadTaxonomy();

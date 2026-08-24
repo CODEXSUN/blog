@@ -1,22 +1,39 @@
-import { useQuery } from "@tanstack/react-query";
-import { ArrowRight } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Menu, Search, X } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
-import { blogMediaUrl, blogPlaceholder } from "./media";
 import {
+  getFavoriteArticleIds,
   getPublicTaxonomy,
   searchPublicArticles,
+  setFavorite,
 } from "./public-blog.services";
+import {
+  formatRelativeTime,
+  PublicStoryShowcase,
+  StoryRow,
+} from "./public-blog.stories";
 import type { PublicArticle, PublicTaxonomy } from "./public-blog.types";
+import { blogVisitorKey } from "./visitor";
 import "./public-blog.css";
 
-type BlogFilter = "all" | "latest" | `category:${number}` | `tag:${number}`;
+type BlogFilter =
+  | "all"
+  | "latest"
+  | "popular"
+  | "favorites"
+  | `category:${number}`
+  | `tag:${number}`;
 
 export function PublicBlogPage({
   mediaBasePath = "/storage/public/blogs/images",
 }: {
   mediaBasePath?: string;
 } = {}) {
+  const client = useQueryClient();
   const [filter, setFilter] = useState<BlogFilter>("all");
+  const [search, setSearch] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(true);
+  const actorKey = useMemo(blogVisitorKey, []);
   const articlesQuery = useQuery({
     queryFn: () => searchPublicArticles(),
     queryKey: ["public-blog"],
@@ -25,95 +42,105 @@ export function PublicBlogPage({
     queryFn: getPublicTaxonomy,
     queryKey: ["public-blog-taxonomy"],
   });
+  const favoritesQuery = useQuery({
+    queryFn: () => getFavoriteArticleIds(actorKey),
+    queryKey: ["public-blog-favorites", actorKey],
+  });
+  const favoriteIds = favoritesQuery.data ?? [];
+  const favorite = useMutation({
+    mutationFn: setFavorite,
+    onSuccess: (_summary, variables) => {
+      client.setQueryData<number[]>(
+        ["public-blog-favorites", actorKey],
+        (current = []) =>
+          variables.active
+            ? [...new Set([...current, variables.articleId])]
+            : current.filter((id) => id !== variables.articleId),
+      );
+      void client.invalidateQueries({ queryKey: ["public-blog"] });
+    },
+  });
   const taxonomy = taxonomyQuery.data ?? [];
-  const articles = useMemo(
-    () => filterArticles(articlesQuery.data ?? [], filter),
-    [articlesQuery.data, filter],
-  );
   const categories = taxonomy.filter((item) => item.kind === "category");
   const tags = taxonomy.filter((item) => item.kind === "tag");
   const taxonomyById = new Map(taxonomy.map((item) => [item.id, item]));
+  const articles = useMemo(
+    () =>
+      filterArticles(
+        articlesQuery.data ?? [],
+        filter,
+        search,
+        new Set(favoriteIds),
+      ),
+    [articlesQuery.data, favoriteIds, filter, search],
+  );
+  const showShowcase = filter === "all" && !search.trim();
+  const showcaseArticles = showShowcase
+    ? (articlesQuery.data ?? []).slice(0, 7)
+    : [];
+  const listedArticles = showShowcase ? articles.slice(7) : articles;
 
   return (
     <div className="public-blog">
-      <section className="public-blog-hero">
-        <span>CODEXSUN field notes</span>
-        <h1>Ideas that make the working day clearer.</h1>
-        <p>
-          Practical guidance for business operations, accounts, billing,
-          manufacturing, and controlled automation.
-        </p>
-      </section>
+      {!articlesQuery.isLoading && !articlesQuery.isError ? (
+        <PublicStoryShowcase
+          articles={showcaseArticles}
+          mediaBasePath={mediaBasePath}
+          taxonomy={taxonomyById}
+        />
+      ) : null}
 
-      <div className="public-blog-layout">
-        <aside className="public-blog-sidebar" aria-label="Filter blog stories">
-          <BlogFilterGroup title="Browse">
-            <FilterButton
-              active={filter === "all"}
-              onClick={() => setFilter("all")}
-            >
-              All stories
-            </FilterButton>
-            <FilterButton
-              active={filter === "latest"}
-              onClick={() => setFilter("latest")}
-            >
-              Latest six
-            </FilterButton>
-          </BlogFilterGroup>
-
-          <BlogFilterGroup title="Categories">
-            {categories.map((category) => (
-              <FilterButton
-                active={filter === `category:${category.id}`}
-                key={category.id}
-                onClick={() => setFilter(`category:${category.id}`)}
-              >
-                {category.name}
-              </FilterButton>
-            ))}
-          </BlogFilterGroup>
-
-          <BlogFilterGroup title="Tags">
-            <div className="public-blog-tags">
-              {tags.map((tag) => (
-                <button
-                  aria-pressed={filter === `tag:${tag.id}`}
-                  className={
-                    filter === `tag:${tag.id}` ? "is-active" : undefined
-                  }
-                  key={tag.id}
-                  onClick={() => setFilter(`tag:${tag.id}`)}
-                  type="button"
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          </BlogFilterGroup>
-
-          <BlogFilterGroup title="Recent">
-            <ol className="public-blog-recent">
-              {articlesQuery.data?.slice(0, 5).map((article) => (
-                <li key={article.id}>
-                  <a href={`/blog/${article.slug}`}>{article.title}</a>
-                  <span>{formatDate(article.publishedAt)}</span>
-                </li>
-              ))}
-            </ol>
-          </BlogFilterGroup>
-        </aside>
-
+      <div
+        className={`public-blog-layout${drawerOpen ? " is-drawer-open" : ""}`}
+      >
         <main className="public-blog-results">
-          <header>
-            <div>
+          <header className="public-blog-toolbar">
+            <div className="public-blog-heading">
               <span>Showing</span>
               <h2>{filterLabel(filter, taxonomyById)}</h2>
             </div>
-            <strong>{articles.length} stories</strong>
+            <div className="public-blog-top-filters" aria-label="Story filters">
+              {(["all", "latest", "popular", "favorites"] as const).map(
+                (value) => (
+                  <FilterButton
+                    active={filter === value}
+                    key={value}
+                    onClick={() => setFilter(value)}
+                  >
+                    {topFilterLabel(value)}
+                  </FilterButton>
+                ),
+              )}
+            </div>
+            <label className="public-blog-search">
+              <Search aria-hidden="true" />
+              <span className="sr-only">Search stories</span>
+              <input
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search stories"
+                type="search"
+                value={search}
+              />
+            </label>
+            <button
+              aria-expanded={drawerOpen}
+              aria-label={
+                drawerOpen ? "Hide story filters" : "Show story filters"
+              }
+              className="public-blog-drawer-toggle"
+              onClick={() => setDrawerOpen((open) => !open)}
+              type="button"
+            >
+              {drawerOpen ? (
+                <X aria-hidden="true" />
+              ) : (
+                <Menu aria-hidden="true" />
+              )}
+              <span>Filters</span>
+            </button>
           </header>
 
-          <section className="public-blog-grid" aria-live="polite">
+          <section className="public-blog-feed" aria-live="polite">
             {articlesQuery.isLoading ? (
               <p className="public-blog-state">Loading stories…</p>
             ) : null}
@@ -124,65 +151,87 @@ export function PublicBlogPage({
             ) : null}
             {!articlesQuery.isLoading &&
             !articlesQuery.isError &&
-            !articles.length ? (
+            !listedArticles.length ? (
               <p className="public-blog-state">
-                No stories match this selection.
+                {showShowcase
+                  ? "More stories are coming soon."
+                  : filter === "favorites"
+                    ? "Save a story and it will appear here."
+                    : "No stories match this selection."}
               </p>
             ) : null}
-            {articles.map((article, index) => (
-              <StoryCard
+            {listedArticles.map((article) => (
+              <StoryRow
                 article={article}
                 category={
                   article.categoryId
                     ? taxonomyById.get(article.categoryId)
                     : undefined
                 }
-                featured={index === 0}
+                favorite={favoriteIds.includes(article.id)}
                 key={article.id}
                 mediaBasePath={mediaBasePath}
+                onFavorite={() =>
+                  favorite.mutate({
+                    articleId: article.id,
+                    actorKey,
+                    active: !favoriteIds.includes(article.id),
+                  })
+                }
               />
             ))}
           </section>
         </main>
+
+        {drawerOpen ? (
+          <aside
+            className="public-blog-sidebar"
+            aria-label="Filter blog stories"
+          >
+            <BlogFilterGroup title="Categories">
+              {categories.map((category) => (
+                <FilterButton
+                  active={filter === `category:${category.id}`}
+                  key={category.id}
+                  onClick={() => setFilter(`category:${category.id}`)}
+                >
+                  {category.name}
+                </FilterButton>
+              ))}
+            </BlogFilterGroup>
+
+            <BlogFilterGroup title="Tags">
+              <div className="public-blog-tags">
+                {tags.map((tag) => (
+                  <button
+                    aria-pressed={filter === `tag:${tag.id}`}
+                    className={
+                      filter === `tag:${tag.id}` ? "is-active" : undefined
+                    }
+                    key={tag.id}
+                    onClick={() => setFilter(`tag:${tag.id}`)}
+                    type="button"
+                  >
+                    {tag.name}
+                  </button>
+                ))}
+              </div>
+            </BlogFilterGroup>
+
+            <BlogFilterGroup title="Recent">
+              <ol className="public-blog-recent">
+                {articlesQuery.data?.slice(0, 5).map((article) => (
+                  <li key={article.id}>
+                    <a href={`/blog/${article.slug}`}>{article.title}</a>
+                    <span>{formatRelativeTime(article.publishedAt)}</span>
+                  </li>
+                ))}
+              </ol>
+            </BlogFilterGroup>
+          </aside>
+        ) : null}
       </div>
     </div>
-  );
-}
-
-function StoryCard({
-  article,
-  category,
-  featured,
-  mediaBasePath,
-}: {
-  article: PublicArticle;
-  category: PublicTaxonomy | undefined;
-  featured: boolean;
-  mediaBasePath: string;
-}) {
-  return (
-    <article className={featured ? "featured" : undefined}>
-      {article.featuredImage ? (
-        <img
-          alt={article.imageAlt}
-          onError={(event) => {
-            event.currentTarget.onerror = null;
-            event.currentTarget.src = blogPlaceholder(article.title);
-          }}
-          src={blogMediaUrl(article.featuredImage, mediaBasePath)}
-        />
-      ) : null}
-      <div>
-        <span>
-          {category?.name ?? "Business"} · {formatDate(article.publishedAt)}
-        </span>
-        <h3>{article.title}</h3>
-        <p>{article.excerpt}</p>
-        <a href={`/blog/${article.slug}`}>
-          Read story <ArrowRight aria-hidden="true" />
-        </a>
-      </div>
-    </article>
   );
 }
 
@@ -222,15 +271,43 @@ function FilterButton({
   );
 }
 
-function filterArticles(articles: PublicArticle[], filter: BlogFilter) {
-  if (filter === "all") return articles;
-  if (filter === "latest") return articles.slice(0, 6);
+function filterArticles(
+  articles: PublicArticle[],
+  filter: BlogFilter,
+  search: string,
+  favoriteIds: Set<number>,
+) {
+  const phrase = search.trim().toLocaleLowerCase();
+  const result = phrase
+    ? articles.filter((article) =>
+        `${article.title} ${article.excerpt} ${article.authorName}`
+          .toLocaleLowerCase()
+          .includes(phrase),
+      )
+    : [...articles];
+  if (filter === "latest") return result.slice(0, 6);
+  if (filter === "popular")
+    return result.sort(
+      (left, right) =>
+        popularity(right) - popularity(left) ||
+        Date.parse(right.publishedAt ?? right.createdAt) -
+          Date.parse(left.publishedAt ?? left.createdAt),
+    );
+  if (filter === "favorites")
+    return result.filter((article) => favoriteIds.has(article.id));
+  if (filter === "all") return result;
   const [kind, rawId] = filter.split(":") as ["category" | "tag", string];
   const id = Number(rawId);
-  return articles.filter((article) =>
+  return result.filter((article) =>
     kind === "category"
       ? article.categoryId === id
       : article.tagIds.includes(id),
+  );
+}
+
+function popularity(article: PublicArticle) {
+  return (
+    article.viewCount + article.commentCount * 4 + article.favoriteCount * 3
   );
 }
 
@@ -240,15 +317,17 @@ function filterLabel(
 ) {
   if (filter === "all") return "All stories";
   if (filter === "latest") return "Latest stories";
+  if (filter === "popular") return "Popular stories";
+  if (filter === "favorites") return "Your favourites";
   const id = Number(filter.split(":")[1]);
   return taxonomy.get(id)?.name ?? "Selected stories";
 }
 
-function formatDate(value: string | null) {
-  if (!value) return "Recently published";
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
+function topFilterLabel(filter: "all" | "latest" | "popular" | "favorites") {
+  return {
+    all: "All stories",
+    latest: "Latest",
+    popular: "Popular",
+    favorites: "Favourites",
+  }[filter];
 }

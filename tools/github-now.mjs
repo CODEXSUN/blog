@@ -75,7 +75,16 @@ function yes(value) {
   return ["y", "yes"].includes(value.trim().toLowerCase());
 }
 function review(entry, subject, fileCount) {
-  return `\n  GitHub Commit Review\n  Version: ${entry.version}\n  Subject: ${subject}\n  Files: ${fileCount}\n`;
+  const rows = [
+    "GitHub Commit Review",
+    `Version: ${entry.version}`,
+    `Subject: ${subject}`,
+    `Files: ${fileCount}`,
+  ];
+  const width = Math.max(60, ...rows.map((row) => row.length + 2));
+  const border = `+${"-".repeat(width)}+`;
+  const content = rows.map((row) => `| ${row.padEnd(width - 2)} |`);
+  return [border, ...content, border].join("\n");
 }
 function changedFiles() {
   const status = runGit(["status", "--porcelain"], true);
@@ -114,23 +123,23 @@ async function main() {
   let entry = readLatestVersionedChangelogEntry(root);
   let subject = formatChangelogCommitSubject(entry);
   const files = changedFiles();
-  console.log(review(entry, subject, files.length));
-  files.forEach((file) => console.log(`    ${file}`));
+  files.forEach((file) => console.log(file));
+  console.log(`\n${review(entry, subject, files.length)}\n`);
   if (process.argv.includes("--dry-run"))
     return console.log(
       "\n  Dry run only. No pull, commit, or push was performed.\n",
     );
   const message = await withPrompt(async (ask) => {
-    if (yes(await ask("  Bump next version before commit? [y/N]: "))) {
+    if (yes(await ask("Bump next version before commit? [y/N]: "))) {
       bumpVersion(
-        await ask("  Version title [version update]: ", "version update"),
+        await ask("Version title [version update]: ", "version update"),
       );
       entry = readLatestVersionedChangelogEntry(root);
       subject = formatChangelogCommitSubject(entry);
-      console.log(review(entry, subject, changedFiles().length));
+      console.log(`\n${review(entry, subject, changedFiles().length)}\n`);
     }
-    const commitSubject = await ask(`  Commit message [${subject}]: `, subject);
-    if (!yes(await ask("  Continue with pull, commit, and push? [y/N]: ")))
+    const commitSubject = await ask(`Commit message [${subject}]: `, subject);
+    if (!yes(await ask("Continue with pull, commit, and push? [y/N]: ")))
       throw new Error("Cancelled.");
     return commitSubject;
   });

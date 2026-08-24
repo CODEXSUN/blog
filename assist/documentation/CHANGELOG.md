@@ -2,11 +2,11 @@
 
 ## Version State
 
-Current version: 1.0.9
+Current version: 1.0.10
 
-Release tag: v-1.0.9
+Release tag: v-1.0.10
 
-Changelog label: v 1.0.9
+Changelog label: v 1.0.10
 
 This changelog records the standalone CODEXSUN Blog package. Database-facing work and application codebase work remain separate in every release entry.
 
@@ -24,16 +24,32 @@ API, web, editor, SEO, service logic, contracts, tooling, packaging, integration
 
 #### Database Changes
 
+- No unreleased database changes.
+
+#### App Codebase Changes
+
+- No unreleased application changes.
+
+## v-1.0.10
+
+### [v 1.0.10] 2026-08-24 9:51 pm - Production GitHub package integration
+
+#### Database Changes
+
 - Database update: Integration lifecycle changed; owner tables are unchanged.
 - Replaced the global Blog connection with a host-provided database context per request.
 - Exported host-owned migration and repeatable seed provisioning for multi-tenant and single-client scopes.
 
 #### App Codebase Changes
 
-- Removed CXApp framework and UI dependencies from the API and web workspaces.
-- Added the versioned add-on manifest, structural errors, request-context isolation, and host authorization adapter.
-- Added host-neutral editor UI primitives and documented the exact-tag integration and upgrade flow.
-- Added contract compilation and a smoke test for the manifest and concurrent request-context isolation.
+- Bumped workspace version to 1.0.10.
+- Added production-safe compiled API and contract exports for GitHub-tag installations.
+- Added the Git dependency prepare lifecycle and npm package policy for compiled artifacts.
+- Changed the host-contract smoke test to exercise the public package exports.
+- Exported request-context helpers for host provisioning and contract validation.
+- Removed host framework and UI dependencies from the API and web workspaces.
+- Added the versioned add-on manifest, request-context isolation, and host authorization adapter.
+- Added host-neutral editor primitives and documented exact-tag integration.
 
 ## v-1.0.9
 

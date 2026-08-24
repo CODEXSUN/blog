@@ -3,9 +3,9 @@ import Fastify from "fastify";
 import {
   getBlogRequestContext,
   withBlogContext,
-} from "../dist/apps/blogs/api/runtime/blog-host.js";
-import { registerBlogsApi } from "../dist/apps/blogs/api/index.js";
-import { blogPluginManifest } from "../dist/apps/blogs/contracts/index.js";
+  registerBlogsApi,
+} from "@codexsun/blog/api";
+import { blogPluginManifest } from "@codexsun/blog/contracts";
 
 assert.equal(blogPluginManifest.kind, "composable-addon-application");
 assert.equal(blogPluginManifest.hostApi, "^1.0.0");

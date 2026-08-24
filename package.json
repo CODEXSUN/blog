@@ -1,13 +1,22 @@
 {
   "name": "@codexsun/blog",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": false,
   "type": "module",
   "exports": {
-    ".": "./src/contracts/src/index.ts",
-    "./api": "./src/api/src/index.ts",
+    ".": {
+      "types": "./dist/apps/blogs/contracts/index.d.ts",
+      "import": "./dist/apps/blogs/contracts/index.js"
+    },
+    "./api": {
+      "types": "./dist/apps/blogs/api/index.d.ts",
+      "import": "./dist/apps/blogs/api/index.js"
+    },
     "./web": "./src/web/src/index.ts",
-    "./contracts": "./src/contracts/src/index.ts"
+    "./contracts": {
+      "types": "./dist/apps/blogs/contracts/index.d.ts",
+      "import": "./dist/apps/blogs/contracts/index.js"
+    }
   },
   "workspaces": [
     "src/api",
@@ -15,6 +24,7 @@
     "src/contracts"
   ],
   "scripts": {
+    "prepare": "npm run build",
     "build": "npm run clean && npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "smoke:host-contract": "npm run build && node tools/host-contract-smoke.mjs",

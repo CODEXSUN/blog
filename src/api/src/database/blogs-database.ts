@@ -37,6 +37,7 @@ import {
 } from "./blogs-experience.migration.js";
 
 export type BlogMigrationStep = {
+  acceptedAppliedChecksums?: readonly string[];
   checksum: string;
   description: string;
   down?: (database: Kysely<BlogsDatabase>) => Promise<unknown>;
@@ -68,7 +69,9 @@ export const blogsMigrationBatch: BlogMigrationBatch = {
     step(articleMigration, migrateArticleModule),
     step(discussionMigration, migrateDiscussionModule),
     step(engagementMigration, migrateEngagementModule),
-    step(blogsExperienceMigration, migrateBlogsExperience, 2),
+    step(blogsExperienceMigration, migrateBlogsExperience, 2, [
+      "187d79bf83dd2a93665fa1cdb971464eaa84b0a05ea425a5b6c3c3379e39ba16",
+    ]),
     step(blogStandardTablesMigration, migrateBlogStandardTables, 3),
     step(blogsLiveEditorMigration, migrateBlogsLiveEditor, 4),
   ],
@@ -101,8 +104,10 @@ function step(
   migration: { description: string; key: string },
   up: (database: Kysely<BlogsDatabase>) => Promise<void>,
   version = 1,
+  acceptedAppliedChecksums?: readonly string[],
 ): BlogMigrationStep {
   return {
+    ...(acceptedAppliedChecksums ? { acceptedAppliedChecksums } : {}),
     checksum: `${migration.key}:v${version}`,
     description: migration.description,
     name: migration.key,

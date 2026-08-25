@@ -2,11 +2,11 @@
 
 ## Version State
 
-Current version: 1.0.10
+Current version: 1.0.11
 
-Release tag: v-1.0.10
+Release tag: v-1.0.11
 
-Changelog label: v 1.0.10
+Changelog label: v 1.0.11
 
 This changelog records the standalone CODEXSUN Blog package. Database-facing work and application codebase work remain separate in every release entry.
 
@@ -29,6 +29,20 @@ API, web, editor, SEO, service logic, contracts, tooling, packaging, integration
 #### App Codebase Changes
 
 - No unreleased application changes.
+
+## v-1.0.11
+
+### [v 1.0.11] 2026-08-25 9:08 am - Stable migration checksum compatibility
+
+#### Database Changes
+
+- Database update: No. Existing migration records remain unchanged.
+
+#### App Codebase Changes
+
+- Added the previously applied checksum for `blogs.experience-v2` to the package-owned migration contract.
+- Added a host-contract regression assertion for the migration name, version, checksum, and accepted legacy checksum.
+- Hosts no longer need to patch Blog migration metadata locally.
 
 ## v-1.0.10
 

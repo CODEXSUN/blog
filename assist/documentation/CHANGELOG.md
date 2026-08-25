@@ -2,11 +2,11 @@
 
 ## Version State
 
-Current version: 1.0.11
+Current version: 1.0.12
 
-Release tag: v-1.0.11
+Release tag: v-1.0.12
 
-Changelog label: v 1.0.11
+Changelog label: v 1.0.12
 
 This changelog records the standalone CODEXSUN Blog package. Database-facing work and application codebase work remain separate in every release entry.
 
@@ -29,6 +29,19 @@ API, web, editor, SEO, service logic, contracts, tooling, packaging, integration
 #### App Codebase Changes
 
 - No unreleased application changes.
+
+## v-1.0.12
+
+### [v 1.0.12] 2026-08-25 9:13 am - Stable Blog migration and release metadata
+
+#### Database Changes
+
+- Database update: No. Migration compatibility remains package-owned.
+
+#### App Codebase Changes
+
+- Synchronized the public add-on manifest with the package release version.
+- Extended version tooling so future releases update and validate the manifest automatically.
 
 ## v-1.0.11
 

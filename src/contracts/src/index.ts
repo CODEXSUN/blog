@@ -1,5 +1,6 @@
 export const BLOG_PLUGIN_KEY = "codexsun.blog" as const;
 export const BLOG_ADDON_KIND = "composable-addon-application" as const;
+export const BLOG_PACKAGE_VERSION = "1.0.12" as const;
 
 export type BlogHost = string;
 export type BlogRuntimeMode = "multi-tenant" | "single-client";
@@ -60,7 +61,7 @@ export const blogPluginManifest: BlogPluginManifest = {
   },
   runtimeModes: ["multi-tenant", "single-client"],
   schemaVersion: 1,
-  version: "1.0.9",
+  version: BLOG_PACKAGE_VERSION,
 };
 
 export type BlogTenantContext = {

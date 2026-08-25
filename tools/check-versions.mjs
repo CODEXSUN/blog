@@ -8,4 +8,8 @@ const changelog = await readFile(new URL("../assist/documentation/CHANGELOG.md",
 if (!changelog.includes(`Current version: ${root.version}`) || !changelog.includes(`Release tag: v-${root.version}`)) {
   throw new Error(`Changelog version state does not match ${root.version}`);
 }
+const contracts = await readFile(new URL("../src/contracts/src/index.ts", import.meta.url), "utf8");
+if (!contracts.includes(`BLOG_PACKAGE_VERSION = "${root.version}"`)) {
+  throw new Error(`Blog plugin manifest version does not match ${root.version}`);
+}
 console.log(`All Blog package versions are ${root.version}`);

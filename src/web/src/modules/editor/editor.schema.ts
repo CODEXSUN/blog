@@ -11,7 +11,14 @@ export const articleSchema = z
     authorName: z.string().trim().min(1).max(191),
     authorRole: z.string().max(191),
     authorAvatar: z.string(),
-    authorUserUuid: z.string().length(8).nullable(),
+    authorUserUuid: z.preprocess(
+      (value) =>
+        typeof value === "string" && value.trim() === "" ? null : value,
+      z
+        .string()
+        .length(8, "Select a valid tenant user, or clear the selection.")
+        .nullable(),
+    ),
     displayPosition: z.number().int().min(0).max(100000),
     categoryId: z.number().nullable(),
     tagIds: z.array(z.number()),

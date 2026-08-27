@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus, Sparkles, Upload } from "lucide-react";
+import { ImagePlus, Sparkles, Upload, X } from "lucide-react";
 import {
   Button,
   Dialog,
   DialogContent,
+  DialogClose,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   WorkspaceAutocomplete,
-} from "../../components/addon-ui";
+} from "../../components/addon-ui.js";
 import { toast } from "sonner";
-import { articleSchema } from "./editor.schema";
+import { articleSchema } from "./editor.schema.js";
 import type {
   Article,
   ArticlePayload,
@@ -19,7 +20,7 @@ import type {
   BlogMediaFile,
   BlogsEditorHost,
   Taxonomy,
-} from "./editor.types";
+} from "./editor.types.js";
 
 const empty: ArticlePayload = {
   kind: "post",
@@ -48,6 +49,7 @@ export function EditorForm({
   templates,
   host,
   saving,
+  saveError,
   onCancel,
   onSubmit,
 }: {
@@ -56,6 +58,7 @@ export function EditorForm({
   templates: ArticleTemplate[];
   host: BlogsEditorHost;
   saving: boolean;
+  saveError: string | undefined;
   onCancel: () => void;
   onSubmit: (value: ArticlePayload) => void;
 }) {
@@ -63,6 +66,9 @@ export function EditorForm({
     record ? toPayload(record) : { ...empty },
   );
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof ArticlePayload, string>>
+  >({});
   const [authors, setAuthors] = useState<BlogAuthorOption[]>([]);
   const [authorsLoading, setAuthorsLoading] = useState(true);
   const [selectedTemplateUuid, setSelectedTemplateUuid] = useState("");
@@ -96,6 +102,19 @@ export function EditorForm({
       active = false;
     };
   }, [host]);
+
+  useEffect(() => {
+    if (saveError) setError(saveError);
+  }, [saveError]);
+
+  useEffect(() => {
+    if (mediaTarget !== null) return;
+    const closeEditorOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onCancel();
+    };
+    document.addEventListener("keydown", closeEditorOnEscape);
+    return () => document.removeEventListener("keydown", closeEditorOnEscape);
+  }, [mediaTarget, onCancel]);
 
   async function openMedia(target: "featuredImage" | "authorAvatar") {
     setMediaTarget(target);
@@ -197,13 +216,16 @@ export function EditorForm({
             onClick={() => {
               const parsed = articleSchema.safeParse(value);
               if (!parsed.success) {
+                const nextErrors = validationErrors(parsed.error.issues);
+                setFieldErrors(nextErrors);
+                const first = parsed.error.issues[0];
                 setError(
-                  parsed.error.issues[0]?.message ??
-                    "Check the article fields.",
+                  first ? issueMessage(first) : "Check the article fields.",
                 );
                 return;
               }
               setError("");
+              setFieldErrors({});
               onSubmit(parsed.data);
             }}
           >
@@ -251,6 +273,7 @@ export function EditorForm({
               value={value.title}
               onChange={(event) => field("title", event.target.value)}
             />
+            <FieldError message={fieldErrors.title} />
           </label>
           <div className="blogs-row">
             <label>
@@ -290,6 +313,7 @@ export function EditorForm({
                 value={value.slug}
                 onChange={(event) => field("slug", event.target.value)}
               />
+              <FieldError message={fieldErrors.slug} />
             </label>
             <label>
               Display position
@@ -311,6 +335,7 @@ export function EditorForm({
               value={value.excerpt}
               onChange={(event) => field("excerpt", event.target.value)}
             />
+            <FieldError message={fieldErrors.excerpt} />
           </label>
           <label>
             Category
@@ -378,6 +403,7 @@ export function EditorForm({
                   if (author) field("authorName", author.name);
                 }}
               />
+              <FieldError message={fieldErrors.authorUserUuid} />
             </label>
             <label>
               Display name
@@ -463,6 +489,7 @@ export function EditorForm({
             value={value.mdx}
             onChange={(event) => field("mdx", event.target.value)}
           />
+          <FieldError message={fieldErrors.mdx} />
           <small>
             Use headings, paragraphs, lists, and links. Executable markup is
             rejected.
@@ -474,6 +501,7 @@ export function EditorForm({
         loading={mediaLoading}
         files={media}
         onClose={() => setMediaTarget(null)}
+        onUpload={() => fileInput.current?.click()}
         onSelect={(file) => {
           field(mediaTarget ?? "featuredImage", file.url);
           setMediaTarget(null);
@@ -524,22 +552,33 @@ function MediaDialog({
   files,
   onClose,
   onSelect,
+  onUpload,
 }: {
   open: boolean;
   loading: boolean;
   files: BlogMediaFile[];
   onClose: () => void;
   onSelect: (file: BlogMediaFile) => void;
+  onUpload: () => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="blogs-media-dialog">
-        <DialogHeader>
-          <DialogTitle>Browse images</DialogTitle>
-          <DialogDescription>
-            Select an image managed by File Manager.
-          </DialogDescription>
-        </DialogHeader>
+        <div className="blogs-media-dialog-heading">
+          <DialogHeader>
+            <DialogTitle>Browse images</DialogTitle>
+            <DialogDescription>
+              Select an image managed by File Manager or upload a new image.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogClose
+            aria-label="Close image browser"
+            className="blogs-media-dialog-close"
+            title="Close image browser"
+          >
+            <X aria-hidden="true" />
+          </DialogClose>
+        </div>
         {loading ? (
           <p>Loading images…</p>
         ) : files.length ? (
@@ -552,11 +591,24 @@ function MediaDialog({
             ))}
           </div>
         ) : (
-          <p>
-            No images are available. Upload one after configuring an active File
-            Manager storage connection.
-          </p>
+          <div className="blogs-media-empty">
+            <ImagePlus aria-hidden="true" />
+            <strong>No managed images yet</strong>
+            <p>Upload an image now, or add one from the File Manager desk.</p>
+          </div>
         )}
+        <footer className="blogs-media-dialog-actions">
+          <span>Press Esc to close</span>
+          <div>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={onUpload}>
+              <Upload aria-hidden="true" />
+              Upload image
+            </Button>
+          </div>
+        </footer>
       </DialogContent>
     </Dialog>
   );
@@ -566,6 +618,9 @@ function toPayload(record: Article): ArticlePayload {
   const {
     id: _id,
     uuid: _uuid,
+    commentCount: _commentCount,
+    viewCount: _viewCount,
+    favoriteCount: _favoriteCount,
     publishedAt: _publishedAt,
     createdAt: _createdAt,
     updatedAt: _updatedAt,
@@ -591,4 +646,30 @@ function formatDate(value: string) {
 }
 function errorMessage(value: unknown) {
   return value instanceof Error ? value.message : "Request failed.";
+}
+
+function FieldError({ message }: { message: string | undefined }) {
+  return message ? (
+    <small className="blogs-field-error">{message}</small>
+  ) : null;
+}
+
+function validationErrors(issues: { message: string; path: PropertyKey[] }[]) {
+  return Object.fromEntries(
+    issues
+      .filter((issue) => typeof issue.path[0] === "string")
+      .map((issue) => [issue.path[0], issue.message]),
+  ) as Partial<Record<keyof ArticlePayload, string>>;
+}
+
+function issueMessage(issue: { message: string; path: PropertyKey[] }) {
+  const key = String(issue.path[0] ?? "article");
+  const label: Partial<Record<keyof ArticlePayload, string>> = {
+    authorName: "Author display name",
+    authorUserUuid: "Author tenant user",
+    mdx: "Content",
+    slug: "Slug",
+    title: "Title",
+  };
+  return `${label[key as keyof ArticlePayload] ?? key}: ${issue.message}`;
 }

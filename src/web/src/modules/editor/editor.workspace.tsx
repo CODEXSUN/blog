@@ -12,9 +12,9 @@ import {
   AlertDialogTitle,
   Button,
   WorkspacePage,
-} from "../../components/addon-ui";
+} from "../../components/addon-ui.js";
 import { toast } from "sonner";
-import { EditorForm } from "./editor.form";
+import { EditorForm } from "./editor.form.js";
 import {
   BlogFilters,
   BlogStats,
@@ -22,21 +22,25 @@ import {
   filterTitle,
   type KindFilter,
   type StatusFilter,
-} from "./editor.dashboard";
+} from "./editor.dashboard.js";
 import {
   articleKey,
   useArticles,
   useArticleTemplates,
   useTaxonomy,
-} from "./editor.hooks";
-import { EditorList } from "./editor.list";
+} from "./editor.hooks.js";
+import { EditorList } from "./editor.list.js";
 import {
   createArticle,
   forceDeleteArticle,
   suspendArticle,
   updateArticle,
-} from "./editor.services";
-import type { Article, ArticlePayload, BlogsEditorHost } from "./editor.types";
+} from "./editor.services.js";
+import type {
+  Article,
+  ArticlePayload,
+  BlogsEditorHost,
+} from "./editor.types.js";
 import "./editor.css";
 
 type LifecycleAction = { kind: "suspend" | "delete"; record: Article } | null;
@@ -97,6 +101,7 @@ export function BlogsEditorWorkspace({ host }: { host: BlogsEditorHost }) {
         taxonomy={taxonomy.data ?? []}
         templates={templates.data ?? []}
         saving={save.isPending}
+        saveError={save.error?.message}
         onCancel={() => setEditing(undefined)}
         onSubmit={(value) => save.mutate(value)}
       />

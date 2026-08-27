@@ -9,8 +9,9 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { Button } from "../../components/addon-ui";
-import type { Article, Taxonomy } from "./editor.types";
+import { Button } from "../../components/addon-ui.js";
+import { blogPlaceholder } from "../public-blog/media.js";
+import type { Article, Taxonomy } from "./editor.types.js";
 
 export function EditorList({
   records,
@@ -102,7 +103,14 @@ function ArticleThumbnail({ article }: { article: Article }) {
   return (
     <div className="blogs-list-thumbnail">
       {canRenderImage ? (
-        <img src={article.featuredImage} alt={article.imageAlt || ""} />
+        <img
+          src={article.featuredImage}
+          alt={article.imageAlt || ""}
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = blogPlaceholder(article.title);
+          }}
+        />
       ) : article.kind === "page" ? (
         <Globe2 aria-hidden="true" />
       ) : (

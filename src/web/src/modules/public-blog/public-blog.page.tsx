@@ -6,14 +6,14 @@ import {
   getPublicTaxonomy,
   searchPublicArticles,
   setFavorite,
-} from "./public-blog.services";
+} from "./public-blog.services.js";
 import {
   formatRelativeTime,
   PublicStoryShowcase,
   StoryRow,
-} from "./public-blog.stories";
-import type { PublicArticle, PublicTaxonomy } from "./public-blog.types";
-import { blogVisitorKey } from "./visitor";
+} from "./public-blog.stories.js";
+import type { PublicArticle, PublicTaxonomy } from "./public-blog.types.js";
+import { blogVisitorKey } from "./visitor.js";
 import "./public-blog.css";
 
 type BlogFilter =

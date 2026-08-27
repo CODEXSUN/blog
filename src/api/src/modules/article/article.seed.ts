@@ -27,16 +27,21 @@ async function seedArticle(
     tagIds = article.tags.map((tag) => taxonomy.get(`tag:${tag}`) ?? 0);
   if (!categoryId || tagIds.includes(0))
     throw new Error(`Blog taxonomy is missing for ${article.slug}.`);
-  await sql`INSERT INTO blogs_articles(uuid,kind,title,slug,excerpt,mdx,featured_image,image_alt,author_name,author_role,category_id,tag_ids,seo_title,seo_description,canonical_url,status,published_at) VALUES(${article.uuid},'post',${article.title},${article.slug},${article.excerpt},${article.mdx},${article.image},${article.imageAlt},'Editorial Team','Technology Editors',${categoryId},${JSON.stringify(tagIds)},${article.seoTitle},${article.seoDescription},'','published',${article.publishedAt}) ON DUPLICATE KEY UPDATE title=VALUES(title),excerpt=VALUES(excerpt),mdx=VALUES(mdx),featured_image=VALUES(featured_image),image_alt=VALUES(image_alt),author_name=VALUES(author_name),author_role=VALUES(author_role),category_id=VALUES(category_id),tag_ids=VALUES(tag_ids),seo_title=VALUES(seo_title),seo_description=VALUES(seo_description),status='published',published_at=VALUES(published_at)`.execute(
+  await sql`INSERT INTO blogs_articles(uuid,kind,title,slug,excerpt,mdx,featured_image,image_alt,author_name,author_role,author_avatar,author_user_uuid,display_position,category_id,tag_ids,seo_title,seo_description,canonical_url,status,published_at) VALUES(${article.uuid},'post',${article.title},${article.slug},${article.excerpt},${article.mdx},${article.image},${article.imageAlt},${article.authorName},${article.authorRole},${article.authorAvatar},NULL,${article.displayPosition},${categoryId},${JSON.stringify(tagIds)},${article.seoTitle},${article.seoDescription},${article.canonicalUrl},'published',${article.publishedAt}) ON DUPLICATE KEY UPDATE title=VALUES(title),excerpt=VALUES(excerpt),mdx=VALUES(mdx),featured_image=VALUES(featured_image),image_alt=VALUES(image_alt),author_name=VALUES(author_name),author_role=VALUES(author_role),author_avatar=VALUES(author_avatar),display_position=VALUES(display_position),category_id=VALUES(category_id),tag_ids=VALUES(tag_ids),seo_title=VALUES(seo_title),seo_description=VALUES(seo_description),canonical_url=VALUES(canonical_url),status='published',published_at=VALUES(published_at)`.execute(
     getBlogsDatabase(),
   );
 }
 
 type ArticleSeed = {
+  authorAvatar: string;
+  authorName: string;
+  authorRole: string;
+  canonicalUrl: string;
   uuid: string;
   title: string;
   slug: string;
   excerpt: string;
+  displayPosition: number;
   mdx: string;
   image: string;
   imageAlt: string;
@@ -536,6 +541,171 @@ When an exception is resolved, record the action, result, root-cause category, l
 Measure open exception age, repeated causes, escalation rate, response time, schedule recovery, false positives, and issues discovered outside the system. Improve rules as the operation changes.`,
     "2026-08-19T08:30:00.000Z",
   ),
+  article(
+    "b109000f",
+    "How to Choose a Business Printer for Billing, Labels, and Daily Office Work",
+    "business-printer-buying-guide-tiruppur",
+    "Compare ink tank and laser printers for invoices, labels, reports, and everyday office work using print volume, running cost, connectivity, and service needs.",
+    "buying-guides",
+    ["buying-guide", "business-computers", "maintenance"],
+    "business-printer",
+    "Business Printer Buying Guide for Tiruppur",
+    "Choose a business printer for billing, labels, and office work by comparing ink tank, laser, duplex, networking, consumables, and support.",
+    `# Choose the printer around the documents you produce
+
+A useful business printer is not simply the model with the lowest purchase price. It must match the documents, daily volume, staff workflow, consumable budget, and service expectations of the business.
+
+For a Tiruppur office, retail counter, workshop, school, clinic, or small factory, begin by listing what the printer must produce: GST invoices, quotations, courier labels, product labels, reports, forms, colour presentations, or scanned records.
+
+## Ink tank or laser
+
+Ink tank printers are often practical when colour output matters and the printer is used regularly. They can provide a low cost per page, but long idle periods, unsuitable paper, or missed maintenance may affect print quality.
+
+Laser printers are usually well suited to fast, sharp text and dependable document output. Monochrome laser models make sense for billing and reports, while colour laser printers suit teams that need durable colour documents at a higher equipment and consumable cost.
+
+## Estimate the real monthly volume
+
+Do not choose from the advertised maximum duty cycle alone. Estimate normal pages per day, peak billing periods, the number of users, and the largest recurring print job. Select a model whose recommended monthly volume comfortably covers that workload.
+
+## Match paper handling to the work
+
+Check supported paper sizes, tray capacity, manual-feed options, envelope and label compatibility, automatic duplex printing, and output capacity. Frequent label work may need a dedicated thermal or label printer instead of repeated manual-sheet handling in a general office printer.
+
+## Plan networking and scanning
+
+For several users, prefer Ethernet or reliable Wi-Fi with clear access control. Confirm support for the computers and mobile devices actually used. If records must be digitised, compare automatic document feeders, duplex scanning, scan-to-folder, scan-to-email, and searchable PDF workflows.
+
+## Calculate consumables and service cost
+
+Compare genuine ink, toner, drum, maintenance-kit, and print-head costs using realistic page yields. Include wasted pages, replacement availability, warranty terms, and downtime. A slightly higher purchase price can be economical when supplies and service are dependable.
+
+## Before ordering
+
+- Print samples of a real invoice, label, report, and colour page.
+- Confirm driver support for the operating systems in use.
+- Check whether billing or label software requires a particular paper size or printer language.
+- Record the network, power, desk-space, and service requirements.
+- Keep an approved spare-consumable level for business-critical printing.
+
+Tech Media can help Tiruppur businesses compare suitable printers, consumables, connectivity, and support requirements. [Explore printers](/shop?category=Printers) or [contact Tech Media](/contact) with your expected documents and monthly volume.`,
+    "2026-08-20T08:30:00.000Z",
+  ),
+  article(
+    "b1090010",
+    "UPS and Power Protection for Computers, Networks, CCTV, and POS Systems",
+    "ups-power-protection-business-systems-tiruppur",
+    "Plan UPS capacity, backup time, surge protection, batteries, and safe shutdown for computers, networking, CCTV, and point-of-sale equipment.",
+    "networking-security",
+    ["security", "business-computers", "maintenance"],
+    "ups-power-protection",
+    "UPS for Computers and Business Systems in Tiruppur",
+    "Protect computers, routers, CCTV, and POS systems with correctly sized UPS capacity, backup time, surge protection, batteries, and shutdown planning.",
+    `# Power protection is a continuity decision
+
+A UPS gives equipment time to continue briefly or shut down safely when incoming power fails. It is not a substitute for correct wiring, earthing, surge protection, generator planning, or equipment maintenance.
+
+Businesses should first identify which systems must remain available: billing computers, POS terminals, network switches, routers, servers, storage, biometric devices, CCTV cameras, recorders, and communication equipment.
+
+## Measure the connected load
+
+Record the wattage of every device that will use the UPS. Include monitors, network equipment, storage, and peripherals—not only the computer cabinet. Allow practical headroom for startup demand, future additions, and battery ageing.
+
+UPS ratings are commonly shown in VA and watts. The watt rating must cover the real load. Do not assume two UPS models with the same VA rating can supply the same usable power.
+
+## Decide the backup time you need
+
+Backup time depends on load, battery capacity, battery condition, temperature, and UPS efficiency. Define the business purpose:
+
+- A few minutes may be enough for safe shutdown.
+- Billing and POS may need time to complete transactions during short interruptions.
+- Routers and switches may need longer backup to preserve communication.
+- CCTV cameras, network switches, and recorders must be considered as one recording chain.
+- Servers and storage need controlled shutdown or generator transition.
+
+## Choose the appropriate UPS design
+
+A line-interactive UPS is common for office computers, network equipment, and smaller installations. Online double-conversion systems provide tighter power conditioning and transfer behaviour for sensitive or critical loads, with higher equipment, energy, and maintenance costs.
+
+Confirm waveform compatibility for active-PFC computer power supplies and other sensitive equipment. For larger installations, ask for a load assessment rather than choosing from cabinet size alone.
+
+## Protect the complete path
+
+A UPS cannot correct every site problem. Review electrical earthing, distribution boards, circuit loading, surge protection, generator output, cable condition, and environmental temperature. Network and communication cables may also carry surge risk into connected equipment.
+
+## Maintain batteries and prove recovery
+
+Batteries lose capacity with age and heat. Record installation dates, perform scheduled tests, keep ventilation clear, and replace batteries using approved specifications. Test actual backup under a controlled load and confirm that servers or recorders shut down and restart correctly.
+
+## A practical assessment checklist
+
+- List every protected device and its wattage.
+- Define required runtime for each business function.
+- Identify generator availability and expected transfer time.
+- Confirm socket, earthing, ventilation, and placement requirements.
+- Plan monitoring, battery replacement, and safe shutdown ownership.
+
+[Contact Tech Media](/contact) to request a power-protection assessment for computers, networking, CCTV, POS, and other business systems in Tiruppur.`,
+    "2026-08-21T08:30:00.000Z",
+  ),
+  article(
+    "b1090011",
+    "Choosing the Right Monitor for Office Work, Design, CCTV, and Multi-Screen Setups",
+    "computer-monitor-buying-guide-tiruppur",
+    "Choose monitor size, resolution, panel quality, ports, ergonomics, and multi-screen arrangements for office, design, CCTV, and professional workloads.",
+    "desktop-systems",
+    ["buying-guide", "performance", "business-computers"],
+    "computer-monitor",
+    "Computer Monitor Buying Guide for Tiruppur",
+    "Compare monitor size, resolution, panel type, colour accuracy, refresh rate, ports, ergonomics, and dual-screen setups for work and CCTV.",
+    `# The right monitor should make the work easier to see
+
+Monitor specifications matter only when they improve the task. An accounts user, designer, CCTV operator, developer, and front-desk team may need very different screen arrangements even when their computers are similar.
+
+Begin with viewing distance, desk depth, application layout, required detail, operating hours, and the ports available on the computer.
+
+## Match screen size and resolution
+
+A 24-inch Full HD monitor is a practical starting point for many office desks. Larger 27-inch displays benefit from higher resolution when users need sharper text or more working space. Very large screens require enough desk depth and deliberate window organisation.
+
+Check operating-system scaling before purchase. More pixels do not automatically create a comfortable workspace if applications, fonts, or remote sessions scale poorly.
+
+## Select the panel for the workload
+
+IPS-type panels are widely used for office and creative work because of consistent viewing angles and colour. VA-type panels can provide stronger contrast for video and monitoring. Other panel technologies may prioritise speed, price, or specialist image quality.
+
+Design and content teams should look beyond broad colour claims. Confirm colour-space coverage, factory calibration, uniformity, brightness, and whether the workflow needs a hardware calibration device.
+
+## Refresh rate and response time
+
+Standard office work does not require gaming specifications, but a higher refresh rate can make scrolling and pointer movement feel smoother. Video, simulation, and gaming workloads may benefit more. Check whether the computer and cable can drive the chosen resolution at the advertised refresh rate.
+
+## Confirm every required connection
+
+Review HDMI, DisplayPort, USB-C, power delivery, USB hubs, audio, and daisy-chain support. USB-C convenience depends on the laptop supporting video output and sufficient charging power. Do not assume every USB-C port provides both.
+
+Use cables rated for the required resolution and refresh rate. Adapters can solve compatibility problems, but unnecessary conversion may add display, wake, or reliability issues.
+
+## Design the physical workspace
+
+Choose height, tilt, swivel, pivot, and VESA-mount options around the user. The top of the working area should be comfortable to view without repeated neck movement. Control window reflections and match brightness to the room.
+
+For dual monitors, align screen height, scaling, colour, and connection behaviour. Two consistent screens are often easier to use than mismatched sizes and resolutions.
+
+## CCTV and continuous-view considerations
+
+CCTV monitoring benefits from suitable screen size, reliable inputs, useful contrast, and a layout matched to the number of camera feeds. Confirm the recorder output resolution and the expected continuous operating schedule. A television is not automatically a substitute for a monitor designed for close-range text or extended business use.
+
+## Before buying
+
+- Test the monitor with representative text, spreadsheets, video, or camera layouts.
+- Confirm the computer supports the required number of displays.
+- Check cables, adapters, mounts, and desk dimensions together.
+- Review warranty terms and dead-pixel policies.
+- Standardise models where consistent spares and support matter.
+
+[Compare monitors and compatible cables](/shop?category=Monitors) or [contact Tech Media](/contact) for help planning an office, design, CCTV, or multi-screen setup in Tiruppur.`,
+    "2026-08-22T08:30:00.000Z",
+  ),
 ];
 
 function article(
@@ -553,11 +723,16 @@ function article(
 ): ArticleSeed {
   const index = Number(uuid.slice(-1));
   return {
+    authorAvatar: "",
+    authorName: "Tech Media Editorial Team",
+    authorRole: "Technology Editors",
+    canonicalUrl: `https://techmedia.in/blog/${slug}`,
     uuid,
     title,
     slug,
     excerpt,
     category,
+    displayPosition: 100,
     tags,
     mdx,
     image: `${imageName}.svg`,

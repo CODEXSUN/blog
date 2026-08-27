@@ -1,4 +1,4 @@
-import type { EngagementSummary, PublicArticle, PublicDiscussion, PublicTaxonomy } from "./public-blog.types";
+import type { EngagementSummary, PublicArticle, PublicDiscussion, PublicTaxonomy } from "./public-blog.types.js";
 type Envelope<T> = { success: boolean; data: T; error?: { message: string } };
 async function read<T>(url: string) {
   const response = await fetch(url);

@@ -1,6 +1,6 @@
 export const BLOG_PLUGIN_KEY = "codexsun.blog" as const;
 export const BLOG_ADDON_KIND = "composable-addon-application" as const;
-export const BLOG_PACKAGE_VERSION = "1.0.12" as const;
+export const BLOG_PACKAGE_VERSION = "1.0.16" as const;
 
 export type BlogHost = string;
 export type BlogRuntimeMode = "multi-tenant" | "single-client";
@@ -10,7 +10,12 @@ export type BlogPluginManifest = {
   apiPrefix: "/blogs";
   capabilities: {
     optional: readonly ["media.public", "queue"];
-    required: readonly ["identity", "authorization", "database", "migration-ledger"];
+    required: readonly [
+      "identity",
+      "authorization",
+      "database",
+      "migration-ledger",
+    ];
   };
   compatibleHosts: "host-adapter";
   contributions: {

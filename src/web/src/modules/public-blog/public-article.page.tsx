@@ -7,10 +7,10 @@ import {
   getPublicTaxonomy,
   saveDiscussion,
   saveEngagement,
-} from "./public-blog.services";
-import type { PublicDiscussion } from "./public-blog.types";
-import { blogMediaUrl, blogPlaceholder } from "./media";
-import { blogVisitorKey } from "./visitor";
+} from "./public-blog.services.js";
+import type { PublicDiscussion } from "./public-blog.types.js";
+import { blogMediaUrl, blogPlaceholder } from "./media.js";
+import { blogVisitorKey } from "./visitor.js";
 
 export function PublicArticlePage({
   slug,

@@ -8,11 +8,15 @@ Centralised Blog add-on for multi-tenant and single-client CODEXSUN products. Th
 - `@codexsun/blog/web` — editor and public React modules with no CXApp or CXShop UI dependency.
 - `@codexsun/blog/contracts` — host-neutral add-on manifest and integration types.
 
-Install exact GitHub tags in production:
+Install the compiled npm package in production:
 
 ```json
-{"dependencies":{"@codexsun/blog":"github:CODEXSUN/blog#v-1.0.9"}}
+{"dependencies":{"@codexsun/blog":"1.0.13"}}
 ```
 
-The current source contains the host-adapter contract that will ship in the next Blog release. See `docs/integration.md` for the production contract and upgrade sequence.
+GitHub releases publish the matching package version to npm. The release tag must use the `v-<version>` format.
+
+The npm trusted publisher must match the `CODEXSUN/blog` repository and `.github/workflows/publish-npm.yml`. The first package publish may require an npm owner to create the `@codexsun/blog` package.
+
+See `docs/integration.md` for the production contract and upgrade sequence.
 blog

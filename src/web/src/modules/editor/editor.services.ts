@@ -3,8 +3,15 @@ import type {
   ArticlePayload,
   ArticleTemplate,
   Taxonomy,
-} from "./editor.types";
+} from "./editor.types.js";
 type Envelope<T> = { success: boolean; data: T; error?: { message: string } };
+type BlogsEditorClientOptions = { headers?: () => HeadersInit };
+let clientOptions: BlogsEditorClientOptions = {};
+
+export function configureBlogsEditorClient(options: BlogsEditorClientOptions) {
+  clientOptions = options;
+}
+
 async function request<T>(url: string, init?: RequestInit) {
   const r = await fetch(url, {
     credentials: "include",
@@ -12,6 +19,7 @@ async function request<T>(url: string, init?: RequestInit) {
       ...(init?.body === undefined
         ? {}
         : { "content-type": "application/json" }),
+      ...clientOptions.headers?.(),
       ...init?.headers,
     },
     ...init,
@@ -30,12 +38,12 @@ export const listArticleTemplates = () =>
 export const createArticle = (body: ArticlePayload) =>
   request<Article>("/api/platform/blogs/articles", {
     method: "POST",
-    body: JSON.stringify(body),
+    body: JSON.stringify(writableArticle(body)),
   });
 export const updateArticle = (id: number, body: ArticlePayload) =>
   request<Article>(`/api/platform/blogs/articles/${id}`, {
     method: "PUT",
-    body: JSON.stringify(body),
+    body: JSON.stringify(writableArticle(body)),
   });
 export const suspendArticle = (id: number) =>
   request<Article>(`/api/platform/blogs/articles/${id}/suspend`, {
@@ -45,3 +53,19 @@ export const forceDeleteArticle = (id: number) =>
   request<Article>(`/api/platform/blogs/articles/${id}/force`, {
     method: "DELETE",
   });
+
+function writableArticle(body: ArticlePayload): ArticlePayload {
+  const source = body as ArticlePayload & Partial<Article>;
+  const {
+    id: _id,
+    uuid: _uuid,
+    commentCount: _commentCount,
+    viewCount: _viewCount,
+    favoriteCount: _favoriteCount,
+    publishedAt: _publishedAt,
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    ...payload
+  } = source;
+  return payload;
+}

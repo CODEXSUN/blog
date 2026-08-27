@@ -4,6 +4,7 @@ import {
   type HTMLAttributes,
   type ReactNode,
   useContext,
+  useEffect,
   useId,
 } from "react";
 
@@ -96,22 +97,45 @@ export function Dialog({
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }) {
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onOpenChange(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [onOpenChange, open]);
+
   if (!open) return null;
   return (
     <DialogContext.Provider value={{ close: () => onOpenChange(false) }}>
-      <div className="codexsun-addon-dialog-backdrop" role="presentation">
+      <div
+        className="codexsun-addon-dialog-backdrop"
+        role="presentation"
+        onMouseDown={(event) => {
+          if (event.currentTarget === event.target) onOpenChange(false);
+        }}
+      >
         {children}
       </div>
     </DialogContext.Provider>
   );
 }
 
-export function DialogContent({ className = "", ...props }: HTMLAttributes<HTMLDivElement>) {
+export function DialogContent({
+  className = "",
+  onMouseDown,
+  ...props
+}: HTMLAttributes<HTMLElement>) {
   return (
     <section
       aria-modal="true"
       className={`codexsun-addon-dialog ${className}`.trim()}
       role="dialog"
+      onMouseDown={(event) => {
+        event.stopPropagation();
+        onMouseDown?.(event);
+      }}
       {...props}
     />
   );
@@ -127,6 +151,22 @@ export function DialogTitle({ children }: { children: ReactNode }) {
 
 export function DialogDescription({ children }: { children: ReactNode }) {
   return <p>{children}</p>;
+}
+
+export function DialogClose(props: ButtonProps) {
+  const dialog = useContext(DialogContext);
+  return (
+    <Button
+      aria-label="Close dialog"
+      type="button"
+      variant="ghost"
+      {...props}
+      onClick={(event) => {
+        props.onClick?.(event);
+        dialog?.close();
+      }}
+    />
+  );
 }
 
 export const AlertDialog = Dialog;

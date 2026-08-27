@@ -180,6 +180,11 @@
   padding: 10px 12px;
   border-radius: 8px;
 }
+.blogs-field-error {
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 500;
+}
 .blogs-dashboard-layout {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr) 230px;
@@ -460,6 +465,79 @@
 .blogs-media-dialog {
   max-width: 760px;
 }
+.blogs-media-dialog-heading,
+.blogs-media-dialog-actions,
+.blogs-media-dialog-actions > div {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+.blogs-media-dialog-heading,
+.blogs-media-dialog-actions {
+  justify-content: space-between;
+}
+.blogs-media-dialog-heading .codexsun-addon-dialog-header {
+  align-items: baseline;
+  display: grid;
+  flex: 1;
+  gap: 24px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  min-width: 0;
+}
+.blogs-media-dialog-heading .codexsun-addon-dialog-header p {
+  margin-top: 0;
+}
+.blogs-media-dialog-close {
+  background: var(--background, #fff);
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 8px;
+  color: var(--foreground, #0f172a);
+  cursor: pointer;
+  flex: 0 0 auto;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px;
+  width: 36px;
+}
+.blogs-media-dialog-close:hover {
+  background: var(--muted, #f1f5f9);
+  border-color: #94a3b8;
+}
+.blogs-media-dialog-close svg {
+  height: 18px;
+  width: 18px;
+}
+.blogs-media-empty {
+  align-items: center;
+  color: var(--muted-foreground, #64748b);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  min-height: 220px;
+  padding: 24px;
+  text-align: center;
+}
+.blogs-media-empty > svg {
+  height: 32px;
+  width: 32px;
+}
+.blogs-media-empty strong,
+.blogs-media-empty p {
+  margin: 0;
+}
+.blogs-media-empty strong {
+  color: var(--foreground, #0f172a);
+}
+.blogs-media-dialog-actions {
+  border-top: 1px solid var(--border, #cbd5e1);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.blogs-media-dialog-actions > span {
+  color: var(--muted-foreground, #64748b);
+  font-size: 13px;
+}
 .blogs-media-grid {
   display: grid;
   max-height: 520px;
@@ -517,6 +595,18 @@
   .blogs-media-input {
     align-items: stretch;
     flex-direction: column;
+  }
+  .blogs-media-dialog-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .blogs-media-dialog-actions > div {
+    justify-content: flex-end;
+  }
+  .blogs-media-dialog-heading .codexsun-addon-dialog-header {
+    align-items: start;
+    gap: 4px;
+    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 1380px) {

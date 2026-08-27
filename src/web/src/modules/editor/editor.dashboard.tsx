@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import type { ReactNode } from "react";
-import type { Article, ArticleStatus, Taxonomy } from "./editor.types";
+import type { Article, ArticleStatus, Taxonomy } from "./editor.types.js";
 
 export type StatusFilter = "all" | ArticleStatus;
 export type KindFilter = "all" | Article["kind"];

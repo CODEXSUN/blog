@@ -2,11 +2,11 @@
 
 ## Version State
 
-Current version: 1.0.12
+Current version: 1.0.16
 
-Release tag: v-1.0.12
+Release tag: v-1.0.16
 
-Changelog label: v 1.0.12
+Changelog label: v 1.0.16
 
 This changelog records the standalone CODEXSUN Blog package. Database-facing work and application codebase work remain separate in every release entry.
 
@@ -29,6 +29,72 @@ API, web, editor, SEO, service logic, contracts, tooling, packaging, integration
 #### App Codebase Changes
 
 - No unreleased application changes.
+
+## v-1.0.16
+
+### [v 1.0.16] 2026-08-27 10:46 am - Authenticated editor validation
+
+#### Database Changes
+
+- Database update: No (auto-check).
+
+#### App Codebase Changes
+
+- Bumped workspace version to 1.0.16.
+- Normalized a cleared article author selector to no linked tenant user.
+- Added field-specific article validation messages beside the affected input.
+- Added host-provided authentication headers to Blog editor data and save requests.
+- Added a safe thumbnail fallback when a File Manager image is missing.
+- Kept public article covers and article-list thumbnails consistent after storage resets.
+
+## v-1.0.15
+
+### [v 1.0.15] 2026-08-26 9:53 am - Accessible File Manager image picker
+
+#### Database Changes
+
+- Database update: No (auto-check).
+
+#### App Codebase Changes
+
+- Bumped workspace version to 1.0.15.
+- Added a visible close control, Cancel action, backdrop dismissal, and Escape-key support to Blog dialogs.
+- Added an Upload image action inside the managed-media browser and retained automatic selection after upload.
+- Added Escape-key exit for the New Article editor when no nested dialog is open.
+- Refined the managed-image picker layout for desktop and mobile screens.
+
+## v-1.0.14
+
+### [v 1.0.14] 2026-08-26 8:25 am - Compiled npm web ESM compatibility
+
+#### Database Changes
+
+- Database update: No (auto-check).
+
+#### App Codebase Changes
+
+- Bumped workspace version to 1.0.14.
+- Published compiled API, web, and contracts entry points through the npm package.
+- Added the GitHub release workflow and npm package-content checks.
+- Removed the install-time Git build requirement.
+- Added explicit JavaScript extensions to compiled web imports for native ESM compatibility.
+- Added NodeNext type checking to prevent invalid compiled web imports.
+
+## v-1.0.13
+
+### [v 1.0.13] 2026-08-25 6:33 pm - Tech Media editorial article seeds
+
+#### Database Changes
+
+- Database update: Yes (automatic repeatable seed update, with no schema migration).
+- Added published seeds for business printer selection, UPS and power protection, and monitor selection.
+- Filled author, avatar, display position, canonical URL, taxonomy, media metadata, and SEO fields consistently in article seeds.
+
+#### App Codebase Changes
+
+- Bumped workspace version to 1.0.13.
+- Added complete Tech Media editorial content for the three new buying and infrastructure guides.
+- Added storefront product, assessment, and contact calls to action to each article.
 
 ## v-1.0.12
 

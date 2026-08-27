@@ -1,2 +1,2 @@
-export * from "./modules/editor/index";
-export * from "./modules/public-blog/index";
+export * from "./modules/editor/index.js";
+export * from "./modules/public-blog/index.js";

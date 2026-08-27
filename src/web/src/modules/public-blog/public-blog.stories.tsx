@@ -1,6 +1,6 @@
 import { ArrowRight, Bookmark, Eye, MessageCircle } from "lucide-react";
-import { blogMediaUrl, blogPlaceholder } from "./media";
-import type { PublicArticle, PublicTaxonomy } from "./public-blog.types";
+import { blogMediaUrl, blogPlaceholder } from "./media.js";
+import type { PublicArticle, PublicTaxonomy } from "./public-blog.types.js";
 
 export function PublicStoryShowcase({
   articles,

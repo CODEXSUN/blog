@@ -1,15 +1,24 @@
 {
   "name": "@codexsun/blogs-web",
-  "version": "1.0.12",
+  "version": "1.0.16",
   "private": false,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./modules/editor": "./src/modules/editor/index.ts",
-    "./modules/public-blog": "./src/modules/public-blog/index.ts"
+    ".": {
+      "types": "../../dist/apps/blogs/web/index.d.ts",
+      "import": "../../dist/apps/blogs/web/index.js"
+    },
+    "./modules/editor": {
+      "types": "../../dist/apps/blogs/web/modules/editor/index.d.ts",
+      "import": "../../dist/apps/blogs/web/modules/editor/index.js"
+    },
+    "./modules/public-blog": {
+      "types": "../../dist/apps/blogs/web/modules/public-blog/index.d.ts",
+      "import": "../../dist/apps/blogs/web/modules/public-blog/index.js"
+    }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json && node ../../tools/copy-web-assets.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --ext .ts,.tsx"
   },

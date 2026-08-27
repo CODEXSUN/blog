@@ -1,8 +1,29 @@
 {
   "name": "@codexsun/blog",
-  "version": "1.0.12",
+  "version": "1.0.16",
   "private": false,
   "type": "module",
+  "description": "Central Blog add-on for CODEXSUN applications.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CODEXSUN/blog.git"
+  },
+  "homepage": "https://github.com/CODEXSUN/blog#readme",
+  "bugs": {
+    "url": "https://github.com/CODEXSUN/blog/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist/",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/apps/blogs/contracts/index.d.ts",
@@ -12,7 +33,10 @@
       "types": "./dist/apps/blogs/api/index.d.ts",
       "import": "./dist/apps/blogs/api/index.js"
     },
-    "./web": "./src/web/src/index.ts",
+    "./web": {
+      "types": "./dist/apps/blogs/web/index.d.ts",
+      "import": "./dist/apps/blogs/web/index.js"
+    },
     "./contracts": {
       "types": "./dist/apps/blogs/contracts/index.d.ts",
       "import": "./dist/apps/blogs/contracts/index.js"
@@ -24,10 +48,11 @@
     "src/contracts"
   ],
   "scripts": {
-    "prepare": "npm run build",
     "build": "npm run clean && npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "smoke:host-contract": "npm run build && node tools/host-contract-smoke.mjs",
+    "verify:package": "node tools/verify-package.mjs",
+    "prepack": "npm run build && node tools/host-contract-smoke.mjs && npm run verify:package",
     "check:versions": "node tools/check-versions.mjs",
     "version:show": "node tools/version.mjs show",
     "version:bump": "node tools/version-bump.mjs",
@@ -35,6 +60,23 @@
     "github:now": "node tools/github-now.mjs",
     "git:release": "node tools/git-release.mjs",
     "clean": "node tools/clean.mjs"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.100.10",
+    "lucide-react": "^1.22.0",
+    "sonner": "^2.0.7",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "fastify": "^5.2.1",
+    "kysely": "^0.29.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",

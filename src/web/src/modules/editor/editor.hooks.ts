@@ -3,7 +3,7 @@ import {
   listArticles,
   listArticleTemplates,
   listTaxonomy,
-} from "./editor.services";
+} from "./editor.services.js";
 export const articleKey = ["blogs", "articles"] as const;
 export const useArticles = () =>
   useQuery({ queryKey: articleKey, queryFn: listArticles });

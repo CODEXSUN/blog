@@ -28,7 +28,7 @@ API, web, editor, SEO, service logic, contracts, tooling, packaging, integration
 
 #### App Codebase Changes
 
-- No unreleased application changes.
+- Made the npm release workflow skip an exact version that already exists.
 
 ## v-1.0.16
 
